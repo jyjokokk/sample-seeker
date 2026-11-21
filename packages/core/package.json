@@ -5,13 +5,13 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "bin": {
-    "sf": "dist/cli.js"
+    "sample-seeker": "dist/cli.js"
   },
   "scripts": {
     "build": "tsc -p .",
     "typecheck": "tsc -p . --noEmit",
-    "test": "cross-env ELECTRON_RUN_AS_NODE=1 electron ../../node_modules/vitest/vitest.mjs run",
-    "test:watch": "cross-env ELECTRON_RUN_AS_NODE=1 electron ../../node_modules/vitest/vitest.mjs",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "lint": "biome lint",
     "check": "biome check --write"
   },

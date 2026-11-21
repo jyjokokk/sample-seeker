@@ -20,6 +20,8 @@ How to write entries:
 
 - Don't commit or push unless the user has asked you to, or has instructed you to do so for the current task. If you're unsure, ask first.
 - Permission covers only what was asked. A request to commit isn't permission to push, and permission given for one change doesn't carry over to the next.
+- When opening a new branch, rebase against `origin/main`
+- When about to merge a branch into main, rebase from `origin/main` in case of merge conflicts
 
 ## Task tracking (Trello)
 
@@ -48,12 +50,13 @@ Tasks live on the [Sample Seeker Trello board](https://trello.com/b/YKmqR6fT/sam
   - `describe` names the unit (module, class or function). Each `it` states one behaviour as a sentence, e.g. `it("skips files that haven't changed since the last index")`. Don't name tests after implementation details, e.g. `it("calls statSync")`.
   - Reading only the `describe`/`it` names should tell someone what the code does, including edge cases and error behaviour.
   - Keep each test focused on one behaviour, with a clear arrange / act / assert flow.
-- Run tests with `pnpm test` (all packages) or `pnpm --filter <package> test` (one package). Tests run inside Electron's Node; see the README.
+- Run tests with `pnpm test` (all packages) or `pnpm --filter <package> test` (one package).
 
 ## Decisions and findings
 
 - **Tooling is shared at the repo root (S27).** Biome handles lint and format (`biome.jsonc`) and Vitest handles tests (`vitest.config.mts`, with each package as a project). Every package has its own `test`, `lint`, `check` and `typecheck` scripts that use the root configs. Add new packages the same way instead of giving them their own tool configs.
-- **Tests and the CLI run inside Electron's Node** (`ELECTRON_RUN_AS_NODE=1`). better-sqlite3 is compiled for Electron's ABI, so plain `node` or `vitest` can't load it. If a native module fails to load, run `pnpm rebuild:electron`.
+- **No native rebuild for Electron (S27).** better-sqlite3 (v13 and later) and onnxruntime-node are built on Node-API, so one binary loads in both plain Node and Electron. ffmpeg-static is a standalone executable. That's why tests and the CLI run on plain Node, and there's no `electron-rebuild` step. Older notes (the scaffold, S2) say better-sqlite3 needs rebuilding for Electron; that was true before v13. If you add a native dependency, check that it uses Node-API before assuming it works in both runtimes.
+- **The dev CLI is called `sample-seeker`** (`pnpm sample-seeker <command>`). It used to be called `sf`, which was undocumented. `window.sf` (the renderer API) and `SF_DATA_DIR` still use the old abbreviation.
 - **`desktop` resolves `@sample-seeker/core` through `core/dist`.** That's why desktop's `typecheck` builds core first.
 - **Biome crashes on the `.claude` symlink in git worktrees** ("path is expected to be under the root"). That's why `biome.jsonc` force-ignores `**/.claude`.
 - **Biome also formats YAML**, including the files in `.github/workflows`. After adding or editing a workflow, run `pnpm check` or CI will fail.

@@ -7,8 +7,8 @@
     "build": "tsc -p tsconfig.json && tsc -p tsconfig.renderer.json && node scripts/copy-assets.mjs",
     "start": "electron .",
     "typecheck": "pnpm --filter @sample-seeker/core build && tsc -p tsconfig.json --noEmit && tsc -p tsconfig.renderer.json --noEmit",
-    "test": "cross-env ELECTRON_RUN_AS_NODE=1 electron ../../node_modules/vitest/vitest.mjs run",
-    "test:watch": "cross-env ELECTRON_RUN_AS_NODE=1 electron ../../node_modules/vitest/vitest.mjs",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "lint": "biome lint",
     "check": "biome check --write"
   },
