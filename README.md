@@ -46,6 +46,31 @@ Node, so you don't have to rebuild the native module back and forth.
 > Linux only: if `pnpm install` fails while onnxruntime-node fetches CUDA
 > binaries, prefix it with `ONNXRUNTIME_NODE_INSTALL_CUDA=skip`.
 
+## Development
+
+All tooling is set up once at the repo root and shared by every package.
+
+| Command           | What it does                                              |
+| ----------------- | --------------------------------------------------------- |
+| `pnpm check`      | Biome: format, lint and sort imports, fixing what it can  |
+| `pnpm lint`       | Biome lint only                                           |
+| `pnpm format`     | Biome format only                                         |
+| `pnpm typecheck`  | `tsc --noEmit` for every package (run `pnpm build` first) |
+| `pnpm test`       | Vitest, all packages                                      |
+| `pnpm test:watch` | Vitest in watch mode                                      |
+
+- **Config:** `biome.jsonc` and `vitest.config.mts` at the root. Each package
+  has a small `vitest.config.mts`, and tests live next to the code as
+  `src/**/*.test.ts`.
+- **Tests run inside Electron's Node** (`ELECTRON_RUN_AS_NODE=1`), like
+  `pnpm sf`, because better-sqlite3 is compiled for Electron's ABI. Run
+  `pnpm rebuild:electron` first.
+- **Pre-commit hook:** `pnpm install` installs a Lefthook hook that runs Biome
+  on staged files and re-stages its fixes.
+- **CI** (`.github/workflows/ci.yml`) runs Biome, build, typecheck and tests on
+  every PR.
+- **Editor:** install the Biome extension for format-on-save.
+
 ## Ableton setup (AbletonOSC)
 
 1. Download AbletonOSC (https://github.com/ideoforms/AbletonOSC), unzip, rename the folder to `AbletonOSC`.
