@@ -177,8 +177,8 @@ Network Trash Folder
 Temporary Items
 .apdisk
 
-# Audio (S24): test samples live in the Ableton User Library, never in the repo.
-# Ableton content may not be redistributed (EULA §5(3)); see scripts/test-samples/README.md.
+# Audio (S24): test samples are a GitHub Release zip unpacked into the Ableton User Library,
+# never in the repo; see scripts/test-samples/README.md.
 *.wav
 *.aif
 *.aiff

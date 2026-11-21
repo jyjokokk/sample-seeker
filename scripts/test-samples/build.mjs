@@ -1,86 +1,73 @@
 #!/usr/bin/env node
 // S24: build the Sample Seeker test sample set inside the Ableton User Library.
 //
-//   node scripts/test-samples/build.mjs [--user-library <path>] [--bulk <n>] [--force]
+//   node scripts/test-samples/build.mjs [--user-library <path>] [--zip <path>] [--bulk <n>] [--force]
 //
-// varied/      copied from Ableton content / downloaded from Freesound (CC0), as listed in manifest.json
+// varied/      CC0 Freesound sounds from the release zip that manifest.json points to (CREDITS.md next to it)
 // edge-cases/  generated with ffmpeg from synthetic tones and noise
 // bulk/        optional (--bulk <n>): n copies of a few varied/ files, for indexing-speed tests
 //
-// No audio ever goes into the repo: Ableton content may not be redistributed (EULA §5(3)).
+// The zip is downloaded once to <repo>/.cache/test-samples/ and checked against the sha256 in manifest.json.
+// --zip <path> uses a local zip instead (before a release exists, or to test a new one).
+// Needs ffmpeg, and `unzip` or a `tar` that reads zips (bsdtar: macOS, Windows 10+).
+// No audio ever goes into the repo.
 
 import { spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import {
   copyFileSync,
+  createWriteStream,
   existsSync,
   mkdirSync,
   readdirSync,
   readFileSync,
+  renameSync,
   rmSync,
   statSync,
   writeFileSync,
 } from "node:fs";
 import { homedir } from "node:os";
-import { basename, dirname, extname, join } from "node:path";
+import { basename, dirname, extname, join, resolve } from "node:path";
+import { Readable } from "node:stream";
+import { pipeline } from "node:stream/promises";
 import { fileURLToPath } from "node:url";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
+const REPO = resolve(HERE, "../..");
+const CACHE = join(REPO, ".cache/test-samples");
 const AUDIO_EXT = new Set([".wav", ".aif", ".aiff", ".mp3", ".flac", ".ogg", ".m4a"]);
-const CC0 = "creativecommons.org/publicdomain/zero/1.0";
 
 // ---------- args ----------
 
+function defaultUserLibrary() {
+  if (process.platform === "darwin") return join(homedir(), "Music/Ableton/User Library");
+  if (process.platform === "win32") return join(homedir(), "Documents/Ableton/User Library");
+  return null;
+}
+
 function parseArgs(argv) {
-  const args = {
-    userLibrary: join(homedir(), "Music/Ableton/User Library"),
-    bulk: 0,
-    force: false,
-  };
+  const args = { userLibrary: defaultUserLibrary(), zip: null, bulk: 0, force: false };
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
     if (a === "--user-library") args.userLibrary = argv[++i];
+    else if (a === "--zip") args.zip = resolve(argv[++i]);
     else if (a === "--bulk") args.bulk = Number(argv[++i]);
     else if (a === "--force") args.force = true;
     else if (a === "-h" || a === "--help") {
-      console.log("usage: build.mjs [--user-library <path>] [--bulk <n>] [--force]");
+      console.log("usage: build.mjs [--user-library <path>] [--zip <path>] [--bulk <n>] [--force]");
       process.exit(0);
     } else throw new Error(`unknown argument: ${a}`);
   }
+  if (!args.userLibrary)
+    throw new Error("no default Ableton User Library on this platform: pass --user-library <path>");
   if (!Number.isInteger(args.bulk) || args.bulk < 0)
     throw new Error("--bulk must be a non-negative integer");
   return args;
 }
 
-// ---------- source roots ----------
-
-function findCoreLibrary() {
-  if (!existsSync("/Applications")) return null;
-  const apps = readdirSync("/Applications")
-    .filter((n) => /^Ableton Live .*\.app$/.test(n))
-    .sort()
-    .reverse();
-  for (const app of apps) {
-    const p = join("/Applications", app, "Contents/App-Resources/Core Library");
-    if (existsSync(p)) return p;
-  }
-  return null;
-}
-
-function sourceRoot(entry, roots) {
-  if (entry.source === "core") return roots.core;
-  if (entry.source.startsWith("pack:"))
-    return join(roots.packs, entry.source.slice("pack:".length));
-  return null;
-}
-
 // ---------- helpers ----------
 
 const sha256 = (path) => createHash("sha256").update(readFileSync(path)).digest("hex");
-
-function sameFile(a, b) {
-  return existsSync(b) && statSync(a).size === statSync(b).size && sha256(a) === sha256(b);
-}
 
 function ffmpeg(args) {
   const bin = process.env.FFMPEG ?? "ffmpeg";
@@ -101,92 +88,114 @@ function garbage(n) {
   return out;
 }
 
+// ---------- release zip ----------
+
+const matchesRelease = (path, release) =>
+  existsSync(path) && statSync(path).size === release.bytes && sha256(path) === release.sha256;
+
+async function download(url, dest) {
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`download failed: HTTP ${res.status} for ${url}`);
+  const part = `${dest}.part`;
+  await pipeline(Readable.fromWeb(res.body), createWriteStream(part));
+  renameSync(part, dest);
+}
+
+// Returns the path of a zip that matches manifest.release (or the --zip path as given).
+async function getZip(manifest, zipArg) {
+  const { release } = manifest;
+  if (zipArg) {
+    if (!existsSync(zipArg)) throw new Error(`zip not found: ${zipArg}`);
+    if (release && !matchesRelease(zipArg, release))
+      console.warn(
+        `  WARNING: ${basename(zipArg)} is not release v${release.version} from manifest.json; ` +
+          "files that don't match the manifest will be rejected",
+      );
+    console.log(`  using ${zipArg}`);
+    return zipArg;
+  }
+  const cached = join(CACHE, basename(new URL(release.url).pathname));
+  if (matchesRelease(cached, release)) {
+    console.log(`  cached: ${cached}`);
+    return cached;
+  }
+  mkdirSync(CACHE, { recursive: true });
+  console.log(`  downloading v${release.version} (${(release.bytes / 1e6).toFixed(1)} MB)…`);
+  await download(release.url, cached);
+  if (!matchesRelease(cached, release)) {
+    rmSync(cached, { force: true });
+    throw new Error(
+      `downloaded zip doesn't match manifest.json (size ${release.bytes}, sha256 ${release.sha256})`,
+    );
+  }
+  return cached;
+}
+
+function extract(zip, dir) {
+  rmSync(dir, { recursive: true, force: true });
+  mkdirSync(dir, { recursive: true });
+  const tools = [
+    ["unzip", ["-q", "-o", zip, "-d", dir]],
+    ["tar", ["-xf", zip, "-C", dir]],
+  ];
+  for (const [cmd, args] of tools) {
+    const r = spawnSync(cmd, args, { encoding: "utf8" });
+    if (r.error?.code === "ENOENT") continue;
+    if (r.error || r.status !== 0)
+      throw new Error(`${cmd} failed: ${r.error?.message ?? r.stderr.trim()}`);
+    return;
+  }
+  throw new Error("need `unzip` or a `tar` that can read zip files (bsdtar) to extract the zip");
+}
+
 // ---------- varied/ ----------
 
-async function buildVaried(manifest, roots, outDir, force) {
-  mkdirSync(outDir, { recursive: true });
-  const stats = { copied: 0, skipped: 0, missing: 0 };
-  const targets = new Set();
-  const counts = {};
+async function buildVaried(manifest, base, zipArg, force) {
+  if (!manifest.release && !zipArg)
+    throw new Error(
+      "manifest.json has no release yet: a maintainer has to pack and publish one first " +
+        "(see scripts/test-samples/README.md), or pass --zip <path> to use a local zip",
+    );
+  const variedDir = join(base, "varied");
+  mkdirSync(variedDir, { recursive: true });
+  const stats = { written: 0, unchanged: 0, rejected: 0 };
+  const credits = join(base, "CREDITS.md");
 
-  for (const entry of manifest.varied) {
-    if (targets.has(entry.target)) throw new Error(`duplicate target in manifest: ${entry.target}`);
-    targets.add(entry.target);
-    counts[entry.category] = (counts[entry.category] ?? 0) + 1;
-    const dest = join(outDir, entry.target);
-
-    if (entry.source === "freesound") {
-      if (existsSync(dest) && !force) {
-        stats.skipped++;
-        continue;
-      }
-      const result = await downloadFreesound(entry, dest);
-      stats[result === "ok" ? "copied" : result === "nokey" ? "skipped" : "missing"]++;
-      continue;
-    }
-
-    const root = sourceRoot(entry, roots);
-    const src = root && join(root, entry.path);
-    if (!src || !existsSync(src)) {
-      console.warn(`  missing source (${entry.source}): ${entry.path}`);
-      stats.missing++;
-      continue;
-    }
-    if (!force && sameFile(src, dest)) {
-      stats.skipped++;
-      continue;
-    }
-    copyFileSync(src, dest);
-    stats.copied++;
-  }
-
-  // Files on disk that the manifest no longer lists.
-  for (const name of readdirSync(outDir)) {
-    if (AUDIO_EXT.has(extname(name).toLowerCase()) && !targets.has(name)) {
-      console.warn(`  not in manifest (remove by hand if stale): varied/${name}`);
-    }
-  }
-  return { stats, counts };
-}
-
-async function downloadFreesound(entry, dest) {
-  const key = process.env.FREESOUND_API_KEY;
-  if (!key) {
-    console.warn(`  skipped Freesound #${entry.id}: set FREESOUND_API_KEY to download`);
-    return "nokey";
-  }
-  const meta = await fetch(
-    `https://freesound.org/apiv2/sounds/${entry.id}/?fields=id,name,license,previews&token=${encodeURIComponent(key)}`,
+  const todo = manifest.samples.filter(
+    (s) => force || !existsSync(join(base, s.file)) || sha256(join(base, s.file)) !== s.sha256,
   );
-  if (!meta.ok) {
-    console.warn(`  Freesound #${entry.id}: HTTP ${meta.status}`);
-    return "failed";
-  }
-  const info = await meta.json();
-  if (!String(info.license).includes(CC0)) {
-    console.warn(`  refused Freesound #${entry.id}: license is ${info.license}, not CC0`);
-    return "failed";
-  }
-  const audio = await fetch(info.previews["preview-hq-mp3"]);
-  if (!audio.ok) {
-    console.warn(`  Freesound #${entry.id}: download HTTP ${audio.status}`);
-    return "failed";
-  }
-  writeFileSync(dest, Buffer.from(await audio.arrayBuffer()));
-  return "ok";
-}
+  stats.unchanged = manifest.samples.length - todo.length;
 
-function findDuplicates(dir) {
-  const seen = new Map();
-  const dups = [];
-  for (const name of readdirSync(dir).sort()) {
-    const p = join(dir, name);
-    if (!statSync(p).isFile() || !AUDIO_EXT.has(extname(name).toLowerCase())) continue;
-    const h = sha256(p);
-    if (seen.has(h)) dups.push([seen.get(h), name]);
-    else seen.set(h, name);
+  if (todo.length > 0 || !existsSync(credits)) {
+    const zip = await getZip(manifest, zipArg);
+    const tmp = join(CACHE, "extract.tmp");
+    mkdirSync(CACHE, { recursive: true });
+    extract(zip, tmp);
+    for (const s of todo) {
+      const src = join(tmp, s.file);
+      if (!existsSync(src)) {
+        console.error(`  missing from zip: ${s.file}`);
+        stats.rejected++;
+      } else if (sha256(src) !== s.sha256) {
+        console.error(`  sha256 mismatch, not copied: ${s.file}`);
+        stats.rejected++;
+      } else {
+        copyFileSync(src, join(base, s.file));
+        stats.written++;
+      }
+    }
+    if (existsSync(join(tmp, "CREDITS.md"))) copyFileSync(join(tmp, "CREDITS.md"), credits);
+    else console.warn("  zip has no CREDITS.md");
+    rmSync(tmp, { recursive: true, force: true });
   }
-  return dups;
+
+  // Files on disk that the manifest doesn't list. Left alone: they may be the user's.
+  const known = new Set(manifest.samples.map((s) => basename(s.file)));
+  for (const name of readdirSync(variedDir).sort()) {
+    if (!known.has(name) && !name.startsWith("."))
+      console.warn(`  not in manifest (remove by hand if stale): varied/${name}`);
+  }
+  return stats;
 }
 
 // ---------- edge-cases/ ----------
@@ -301,34 +310,29 @@ async function main() {
     throw new Error(`User Library not found: ${args.userLibrary} (use --user-library)`);
 
   const manifest = JSON.parse(readFileSync(join(HERE, "manifest.json"), "utf8"));
-  const roots = { core: findCoreLibrary(), packs: join(homedir(), "Music/Ableton/Factory Packs") };
   const base = join(args.userLibrary, manifest.folder);
   console.log(`Test folder: ${base}`);
-  console.log(`Core Library: ${roots.core ?? "(not found)"}`);
 
   console.log("edge-cases/");
   const made = buildEdgeCases(join(base, "edge-cases"), args.force);
   console.log(`  ${made} written, ${EDGE_CASES.length + 2 - made} already there`);
 
   console.log("varied/");
-  const variedDir = join(base, "varied");
-  const { stats, counts } = await buildVaried(manifest, roots, variedDir, args.force);
-  console.log(`  ${stats.copied} copied, ${stats.skipped} unchanged, ${stats.missing} missing`);
-  const renamed = manifest.varied.filter(
-    (e) => e.target !== (e.originalName ?? basename(e.path ?? "")),
-  ).length;
-  console.log(`  ${manifest.varied.length} entries, ${renamed} badly named`);
+  const stats = await buildVaried(manifest, base, args.zip, args.force);
+  console.log(
+    `  ${stats.written} written, ${stats.unchanged} unchanged, ${stats.rejected} rejected` +
+      (manifest.release ? ` (release v${manifest.release.version})` : ""),
+  );
+  const counts = {};
+  for (const s of manifest.samples) counts[s.category] = (counts[s.category] ?? 0) + 1;
   for (const [cat, n] of Object.entries(counts).sort()) console.log(`    ${cat.padEnd(12)} ${n}`);
-
-  const dups = findDuplicates(variedDir);
-  for (const [a, b] of dups) console.error(`  DUPLICATE: ${a} == ${b}`);
 
   if (args.bulk > 0) {
     console.log("bulk/");
-    console.log(`  ${buildBulk(variedDir, join(base, "bulk"), args.bulk)} copies`);
+    console.log(`  ${buildBulk(join(base, "varied"), join(base, "bulk"), args.bulk)} copies`);
   }
 
-  if (dups.length > 0 || stats.missing > 0) process.exitCode = 1;
+  if (stats.rejected > 0) process.exitCode = 1;
 }
 
 main().catch((err) => {
