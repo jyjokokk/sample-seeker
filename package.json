@@ -5,7 +5,14 @@
     "build": "pnpm --filter @sample-seeker/core build && pnpm --filter @sample-seeker/desktop build",
     "start": "pnpm build && pnpm --filter @sample-seeker/desktop start",
     "rebuild:electron": "electron-rebuild -f -w better-sqlite3 -m packages/core",
-    "sf": "cross-env ELECTRON_RUN_AS_NODE=1 electron packages/core/dist/cli.js"
+    "sf": "cross-env ELECTRON_RUN_AS_NODE=1 electron packages/core/dist/cli.js",
+    "typecheck": "pnpm -r typecheck",
+    "lint": "biome lint",
+    "format": "biome format --write",
+    "check": "biome check --write",
+    "test": "cross-env ELECTRON_RUN_AS_NODE=1 electron node_modules/vitest/vitest.mjs run",
+    "test:watch": "cross-env ELECTRON_RUN_AS_NODE=1 electron node_modules/vitest/vitest.mjs",
+    "prepare": "lefthook install"
   },
   "devDependencies": {
     "@biomejs/biome": "2.6.8",
