@@ -2,6 +2,10 @@
 /**
  * Dev CLI, for testing the engine without the app.
  *   sf add <folder> | sf remove <folder> | sf index | sf search "<query>" | sf similar <file>
+ *
+ * TODO: Rename the `sf` command. Its meaning is undocumented (probably "sample finder",
+ * a pre-"Sample Seeker" name). Update the script key in the root package.json and the
+ * usage strings in this file together.
  */
 import { homedir } from "node:os";
 import { join, resolve } from "node:path";
