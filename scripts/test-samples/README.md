@@ -6,117 +6,92 @@ browser sees the same files:
 
 ```
 <User Library>/Samples/Sample Seeker Test/
-  varied/      ~300 CC0 Freesound sounds across categories, ~35 % with bad names (benchmark set)
-  CREDITS.md   source, author and license of every varied/ file
-  edge-cases/  one file per format / failure case, generated from synthetic tones and noise
-  bulk/        optional copies, only for indexing-speed and incremental-skip tests
+  varied/       ~150 CC0 Freesound sounds across categories, ~35 % with bad names (benchmark set)
+  samples.json  id, category, original name and author of every varied/ file (local ground truth)
+  CREDITS.md    source, author and license of every varied/ file
+  edge-cases/   one file per format / failure case, generated from synthetic tones and noise
+  bulk/         optional copies, only for indexing-speed and incremental-skip tests
 ```
 
-`varied/` comes from a zip published as a GitHub Release asset on this repo (tag `test-samples-v<n>`).
-`manifest.json` says which release to use and lists every file with its sha256.
+`varied/` is downloaded from Freesound by **each developer, with their own Freesound account**. The set is
+never re-hosted: Freesound's API terms forbid publishing content obtained through the API (§4(a)).
+`manifest.json` lists the sounds by Freesound id, category and sha256, so everyone gets byte-identical files.
 
-## Build (everyone)
+## Setup (once)
+
+1. Create a free Freesound account and API credentials at https://freesound.org/apiv2/apply.
+   Leave the callback URL at its default, so Freesound shows the login code on a page.
+2. Save the credentials **in your own terminal** (not in a chat or shared log):
+
+   ```bash
+   mkdir -p ~/.config/freesound && chmod 700 ~/.config/freesound
+   pbpaste > ~/.config/freesound/client_id       # copy the client id first
+   pbpaste > ~/.config/freesound/client_secret   # then the client secret (Freesound's "API key")
+   chmod 600 ~/.config/freesound/*
+   ```
+
+   Or set `FREESOUND_CLIENT_ID` and `FREESOUND_CLIENT_SECRET`.
+
+3. Log in: `pnpm test-samples auth` prints a link. Open it, authorize, then run
+   `pnpm test-samples auth <code>` with the code Freesound shows (valid ~10 minutes). The token is saved to
+   `~/.config/freesound/token.json` and refreshed automatically. Downloading original files needs this
+   OAuth login; an API key alone only gets lossy previews.
+
+## Build
 
 ```bash
 pnpm test-samples                          # edge-cases/ + varied/
 pnpm test-samples --bulk 500               # also fill bulk/ with 500 copies
 pnpm test-samples --user-library <path>    # non-default User Library
 pnpm test-samples --force                  # rewrite everything
-pnpm test-samples --zip <path>             # use a local zip instead of downloading the release
 ```
 
 The default User Library is `~/Music/Ableton/User Library` on macOS and
 `~/Documents/Ableton/User Library` on Windows (Live: Settings → Library). Elsewhere, pass `--user-library`.
 
-The zip is downloaded once to `.cache/test-samples/` (gitignored) and checked against the size and sha256
-in `manifest.json`. Every extracted file is checked against its sha256 too; a file that doesn't match is
-not copied and the run fails. Re-running only writes what is missing or changed. Files in `varied/` that
-the manifest doesn't list are reported, not deleted.
+The first run downloads ~150 sounds (~210 MB). It is rate-limited to Freesound's limits (30 downloads a
+minute), so it takes about 6 minutes. Every file is checked against its sha256 in `manifest.json`; a file
+that doesn't match is not written and the run fails. Re-runs only download what is missing or changed, so a
+complete set needs no network or login. Files in `varied/` that the manifest doesn't list are reported, not
+deleted.
 
-Needs:
+Needs Node 22.18+ (it runs the TypeScript directly) and `ffmpeg` on PATH (or `FFMPEG=/path/to/ffmpeg`), for
+`edge-cases/`.
 
-- `ffmpeg` on PATH (or `FFMPEG=/path/to/ffmpeg`), for `edge-cases/`.
-- `unzip`, or a `tar` that reads zip files (bsdtar: macOS, Windows 10+). Most Linux systems have `unzip`.
+## File names in varied/
 
-## Publish a new set (maintainer)
-
-The sounds are downloaded **by hand** on freesound.org, never through the API or a script: the API terms
-forbid re-hosting content obtained through the API (§4(a)), and scripting the website would be scraping
-(§4(f)). Nothing in this folder talks to Freesound.
-
-1. **Curate** candidate sound IDs: CC0 only, spread across the categories below.
-2. **Re-check** (before every new release, including for sounds already in the set) that each sound is still
-   online and still CC0. Drop any that aren't.
-3. **Download** each sound by hand on freesound.org while logged in. The website names files
-   `<id>__<username>__<original name>.<ext>`.
-4. **Import** the downloads into a staging directory with a `sources.json`. id, author and name come from
-   the file name and the sound's page:
-
-   ```json
-   { "samples": [ { "id": 12345, "source": "freesound", "url": "https://freesound.org/s/12345/",
-       "license": "http://creativecommons.org/publicdomain/zero/1.0/", "author": "username",
-       "name": "<original Freesound name>", "category": "kick", "path": "kick/12345-<slug>.wav" } ] }
-   ```
-
-   `path` is relative to the staging directory. Categories: kick, snare, clap, hihat, cymbal, tom, perc,
-   drum-loop, bass, keys, synth, instrument, stab, vocal, fx, music-loop, texture.
-
-5. **Pack** it, with the next version number:
-
-   ```bash
-   node scripts/test-samples/pack.mjs --staging <dir> --version <n> [--out <dir>]
-   ```
-
-   This checks every entry (file exists, license is CC0, no duplicate ids or content, and a file that still
-   has its website name agrees with sources.json on id and username), names the files,
-   writes `sample-seeker-test-samples-v<n>.zip` (default: `.cache/test-samples/`) with `varied/` and
-   `CREDITS.md`, and rewrites `manifest.json`. Nothing is written if any entry fails. Needs `zip` on PATH.
-
-6. **Check** it: `pnpm test-samples --zip <zip>`.
-7. **Publish** it with the `gh release create …` command that `pack.mjs` prints.
-8. **Commit** `manifest.json`.
-
-Never replace the asset of a published version: bump `--version` instead, or everyone's sha256 check fails.
-
-File names in `varied/`:
-
-- ~35 % of the sounds get a bad generic name (`smpl_297.wav`, `New Recording 86.wav`, …). Whether a
-  sound gets one, and which, depends only on its Freesound id.
+- ~35 % of the sounds get a bad generic name (`smpl_297.wav`, `New Recording 86.wav`, …). Whether a sound
+  gets one, and which, depends only on its Freesound id.
 - The rest keep their Freesound name, made safe for file systems (ASCII only, no `/ \ : * ? " < > |`).
-- Sounds already in `manifest.json` keep their file name, so growing the set never renames a file.
-  A clash (ignoring case) gets ` 2`, ` 3`, … before the extension.
+- A clash (ignoring case) gets ` 2`, ` 3`, … before the extension.
 
-The zip is deterministic: sorted entries, fixed timestamps and permissions, no extra fields. Packing the
-same staging directory again with the same `zip` version gives the same sha256.
+`samples.json` maps every file to its id, category and original name: the ground truth for the benchmark
+(S5), whether or not the file got a bad name. It is generated locally and never committed, because it holds
+Freesound metadata. Benchmark queries should refer to sounds by Freesound id.
 
-## manifest.json
+## Changing the set (maintainer)
+
+`manifest.json` holds only ids, categories and sha256s:
 
 ```json
 {
   "folder": "Samples/Sample Seeker Test",
-  "release": {
-    "version": 1,
-    "url": "https://github.com/…/sample-seeker-test-samples-v1.zip",
-    "sha256": "…",
-    "bytes": 123
-  },
-  "samples": [
-    {
-      "id": 12345,
-      "url": "…",
-      "license": "…",
-      "author": "…",
-      "name": "<original name>",
-      "category": "kick",
-      "file": "varied/smpl_297.wav",
-      "sha256": "…"
-    }
-  ]
+  "samples": [{ "id": 12345, "category": "kick", "sha256": "…" }]
 }
 ```
 
-`release` is `null` until the first set is published. `name` (the original Freesound name) and `category`
-are the ground truth for writing `queries.json` (S5), whether or not `file` got a bad name.
+Categories: kick, snare, clap, hihat, cymbal, tom, perc, drum-loop, bass, keys, synth, instrument, stab,
+vocal, fx, music-loop, texture.
+
+1. Add or replace entries with `{ "id", "category" }`. Only CC0 sounds that pass the screening (no ripped
+   or film/TV/game audio, no brands, no intelligible speech, uploader hasn't opted out of AI use). The
+   curation notes and reserve candidates from the first round are in `.cache/test-samples/curation/`
+   (local only).
+2. Run `pnpm test-samples`, listen to the new sounds (e.g. in Live), and drop any that fail.
+3. Run `pnpm test-samples --update-manifest` to pin the sha256 of the new entries, and commit
+   `manifest.json`.
+
+If a run reports a sound as "no longer on Freesound" or "no longer CC0", replace it the same way.
 
 ## Edge cases
 
@@ -134,10 +109,9 @@ are the ground truth for writing `queries.json` (S5), whether or not `file` got 
 
 ## Licensing
 
-- **CC0 only.** Every sound in the set is Freesound CC0 (public domain); `pack.mjs` refuses anything else.
-- **Downloaded by hand, never through the Freesound API** (API terms §4(a) forbid re-hosting API content;
-  scripting the website would be scraping, §4(f)).
-  `CREDITS.md` in the zip credits every sound anyway.
-- **No audio in the repo.** `.gitignore` blocks audio files repo-wide. The audio is only in the release zip.
+- **CC0 only.** Every sound is Freesound CC0 (public domain); the build rejects a sound that no longer is.
+- **Never publish the set.** No zip, release or other mirror: each developer downloads it through the API
+  with their own account, which the API terms allow; re-hosting it would break §4(a).
+- **No audio in the repo.** `.gitignore` blocks audio files repo-wide. The repo holds only Freesound ids.
 - **No Ableton content.** Its EULA forbids redistributing it (§5(3)), and every machine has a different
   library, so the set wouldn't be the same everywhere.

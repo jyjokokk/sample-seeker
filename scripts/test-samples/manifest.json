@@ -1,5 +1,601 @@
 {
   "folder": "Samples/Sample Seeker Test",
-  "release": null,
-  "samples": []
+  "samples": [
+    {
+      "id": 808,
+      "category": "kick"
+    },
+    {
+      "id": 812,
+      "category": "hihat"
+    },
+    {
+      "id": 10657,
+      "category": "instrument"
+    },
+    {
+      "id": 13278,
+      "category": "keys"
+    },
+    {
+      "id": 16343,
+      "category": "tom"
+    },
+    {
+      "id": 25663,
+      "category": "snare"
+    },
+    {
+      "id": 44365,
+      "category": "stab"
+    },
+    {
+      "id": 46990,
+      "category": "instrument"
+    },
+    {
+      "id": 51300,
+      "category": "drum-loop"
+    },
+    {
+      "id": 51318,
+      "category": "perc"
+    },
+    {
+      "id": 53403,
+      "category": "perc"
+    },
+    {
+      "id": 68437,
+      "category": "keys"
+    },
+    {
+      "id": 71068,
+      "category": "texture"
+    },
+    {
+      "id": 73002,
+      "category": "bass"
+    },
+    {
+      "id": 75037,
+      "category": "hihat"
+    },
+    {
+      "id": 77088,
+      "category": "fx"
+    },
+    {
+      "id": 82281,
+      "category": "perc"
+    },
+    {
+      "id": 83544,
+      "category": "bass"
+    },
+    {
+      "id": 87719,
+      "category": "hihat"
+    },
+    {
+      "id": 95328,
+      "category": "keys"
+    },
+    {
+      "id": 100270,
+      "category": "bass"
+    },
+    {
+      "id": 100475,
+      "category": "instrument"
+    },
+    {
+      "id": 102888,
+      "category": "drum-loop"
+    },
+    {
+      "id": 105333,
+      "category": "perc"
+    },
+    {
+      "id": 128129,
+      "category": "stab"
+    },
+    {
+      "id": 128454,
+      "category": "synth"
+    },
+    {
+      "id": 131332,
+      "category": "clap"
+    },
+    {
+      "id": 132279,
+      "category": "cymbal"
+    },
+    {
+      "id": 132418,
+      "category": "perc"
+    },
+    {
+      "id": 135118,
+      "category": "fx"
+    },
+    {
+      "id": 135549,
+      "category": "kick"
+    },
+    {
+      "id": 147881,
+      "category": "vocal"
+    },
+    {
+      "id": 157245,
+      "category": "kick"
+    },
+    {
+      "id": 157410,
+      "category": "kick"
+    },
+    {
+      "id": 159398,
+      "category": "synth"
+    },
+    {
+      "id": 162679,
+      "category": "drum-loop"
+    },
+    {
+      "id": 170490,
+      "category": "tom"
+    },
+    {
+      "id": 171485,
+      "category": "tom"
+    },
+    {
+      "id": 172157,
+      "category": "fx"
+    },
+    {
+      "id": 175378,
+      "category": "music-loop"
+    },
+    {
+      "id": 176556,
+      "category": "perc"
+    },
+    {
+      "id": 185273,
+      "category": "hihat"
+    },
+    {
+      "id": 194374,
+      "category": "music-loop"
+    },
+    {
+      "id": 208447,
+      "category": "kick"
+    },
+    {
+      "id": 209879,
+      "category": "tom"
+    },
+    {
+      "id": 209900,
+      "category": "cymbal"
+    },
+    {
+      "id": 213524,
+      "category": "drum-loop"
+    },
+    {
+      "id": 213900,
+      "category": "synth"
+    },
+    {
+      "id": 219266,
+      "category": "perc"
+    },
+    {
+      "id": 221484,
+      "category": "tom"
+    },
+    {
+      "id": 244056,
+      "category": "synth"
+    },
+    {
+      "id": 246281,
+      "category": "instrument"
+    },
+    {
+      "id": 249823,
+      "category": "texture"
+    },
+    {
+      "id": 252809,
+      "category": "drum-loop"
+    },
+    {
+      "id": 256901,
+      "category": "drum-loop"
+    },
+    {
+      "id": 257363,
+      "category": "instrument"
+    },
+    {
+      "id": 261208,
+      "category": "synth"
+    },
+    {
+      "id": 261335,
+      "category": "drum-loop"
+    },
+    {
+      "id": 264532,
+      "category": "cymbal"
+    },
+    {
+      "id": 265675,
+      "category": "stab"
+    },
+    {
+      "id": 265676,
+      "category": "synth"
+    },
+    {
+      "id": 266107,
+      "category": "bass"
+    },
+    {
+      "id": 269100,
+      "category": "kick"
+    },
+    {
+      "id": 271945,
+      "category": "stab"
+    },
+    {
+      "id": 272276,
+      "category": "cymbal"
+    },
+    {
+      "id": 273770,
+      "category": "clap"
+    },
+    {
+      "id": 276312,
+      "category": "perc"
+    },
+    {
+      "id": 315705,
+      "category": "instrument"
+    },
+    {
+      "id": 326741,
+      "category": "kick"
+    },
+    {
+      "id": 328727,
+      "category": "instrument"
+    },
+    {
+      "id": 330132,
+      "category": "cymbal"
+    },
+    {
+      "id": 331657,
+      "category": "vocal"
+    },
+    {
+      "id": 332643,
+      "category": "music-loop"
+    },
+    {
+      "id": 334536,
+      "category": "keys"
+    },
+    {
+      "id": 337826,
+      "category": "snare"
+    },
+    {
+      "id": 347625,
+      "category": "kick"
+    },
+    {
+      "id": 347988,
+      "category": "music-loop"
+    },
+    {
+      "id": 351429,
+      "category": "fx"
+    },
+    {
+      "id": 352422,
+      "category": "texture"
+    },
+    {
+      "id": 355065,
+      "category": "clap"
+    },
+    {
+      "id": 355067,
+      "category": "snare"
+    },
+    {
+      "id": 372192,
+      "category": "texture"
+    },
+    {
+      "id": 373577,
+      "category": "instrument"
+    },
+    {
+      "id": 375926,
+      "category": "fx"
+    },
+    {
+      "id": 382225,
+      "category": "vocal"
+    },
+    {
+      "id": 383011,
+      "category": "clap"
+    },
+    {
+      "id": 391397,
+      "category": "bass"
+    },
+    {
+      "id": 392038,
+      "category": "fx"
+    },
+    {
+      "id": 397043,
+      "category": "clap"
+    },
+    {
+      "id": 400755,
+      "category": "fx"
+    },
+    {
+      "id": 413713,
+      "category": "vocal"
+    },
+    {
+      "id": 415922,
+      "category": "music-loop"
+    },
+    {
+      "id": 419161,
+      "category": "vocal"
+    },
+    {
+      "id": 422569,
+      "category": "music-loop"
+    },
+    {
+      "id": 425435,
+      "category": "hihat"
+    },
+    {
+      "id": 427979,
+      "category": "fx"
+    },
+    {
+      "id": 434917,
+      "category": "vocal"
+    },
+    {
+      "id": 434927,
+      "category": "vocal"
+    },
+    {
+      "id": 474363,
+      "category": "drum-loop"
+    },
+    {
+      "id": 476907,
+      "category": "stab"
+    },
+    {
+      "id": 484632,
+      "category": "bass"
+    },
+    {
+      "id": 484647,
+      "category": "bass"
+    },
+    {
+      "id": 495780,
+      "category": "snare"
+    },
+    {
+      "id": 500546,
+      "category": "fx"
+    },
+    {
+      "id": 508327,
+      "category": "vocal"
+    },
+    {
+      "id": 509391,
+      "category": "synth"
+    },
+    {
+      "id": 517860,
+      "category": "drum-loop"
+    },
+    {
+      "id": 524620,
+      "category": "synth"
+    },
+    {
+      "id": 528012,
+      "category": "keys"
+    },
+    {
+      "id": 538546,
+      "category": "synth"
+    },
+    {
+      "id": 556514,
+      "category": "texture"
+    },
+    {
+      "id": 560207,
+      "category": "synth"
+    },
+    {
+      "id": 561505,
+      "category": "synth"
+    },
+    {
+      "id": 570804,
+      "category": "stab"
+    },
+    {
+      "id": 581468,
+      "category": "snare"
+    },
+    {
+      "id": 581806,
+      "category": "music-loop"
+    },
+    {
+      "id": 593861,
+      "category": "texture"
+    },
+    {
+      "id": 610356,
+      "category": "perc"
+    },
+    {
+      "id": 612742,
+      "category": "drum-loop"
+    },
+    {
+      "id": 614391,
+      "category": "hihat"
+    },
+    {
+      "id": 614410,
+      "category": "tom"
+    },
+    {
+      "id": 615772,
+      "category": "drum-loop"
+    },
+    {
+      "id": 629138,
+      "category": "drum-loop"
+    },
+    {
+      "id": 629146,
+      "category": "music-loop"
+    },
+    {
+      "id": 629178,
+      "category": "music-loop"
+    },
+    {
+      "id": 632255,
+      "category": "keys"
+    },
+    {
+      "id": 635040,
+      "category": "synth"
+    },
+    {
+      "id": 647530,
+      "category": "fx"
+    },
+    {
+      "id": 648909,
+      "category": "keys"
+    },
+    {
+      "id": 651797,
+      "category": "music-loop"
+    },
+    {
+      "id": 654712,
+      "category": "instrument"
+    },
+    {
+      "id": 657392,
+      "category": "keys"
+    },
+    {
+      "id": 659889,
+      "category": "music-loop"
+    },
+    {
+      "id": 660534,
+      "category": "bass"
+    },
+    {
+      "id": 663324,
+      "category": "snare"
+    },
+    {
+      "id": 663687,
+      "category": "music-loop"
+    },
+    {
+      "id": 667125,
+      "category": "clap"
+    },
+    {
+      "id": 669855,
+      "category": "snare"
+    },
+    {
+      "id": 674291,
+      "category": "cymbal"
+    },
+    {
+      "id": 674293,
+      "category": "hihat"
+    },
+    {
+      "id": 685255,
+      "category": "fx"
+    },
+    {
+      "id": 689470,
+      "category": "hihat"
+    },
+    {
+      "id": 692828,
+      "category": "perc"
+    },
+    {
+      "id": 701104,
+      "category": "fx"
+    },
+    {
+      "id": 703687,
+      "category": "texture"
+    },
+    {
+      "id": 706858,
+      "category": "vocal"
+    },
+    {
+      "id": 736935,
+      "category": "bass"
+    },
+    {
+      "id": 805010,
+      "category": "snare"
+    },
+    {
+      "id": 825671,
+      "category": "texture"
+    }
+  ]
 }

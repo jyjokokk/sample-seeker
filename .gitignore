@@ -177,7 +177,7 @@ Network Trash Folder
 Temporary Items
 .apdisk
 
-# Audio (S24): test samples are a GitHub Release zip unpacked into the Ableton User Library,
+# Audio (S24): test samples are downloaded from Freesound into the Ableton User Library,
 # never in the repo; see scripts/test-samples/README.md.
 *.wav
 *.aif
