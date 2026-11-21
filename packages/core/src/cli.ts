@@ -26,10 +26,10 @@ async function main() {
         for (const p of args) console.log("added", engine.addRoot(p));
         break;
       case "remove":
-        args.forEach((p) => {
+        for (const p of args) {
           const abs = resolve(p);
           console.log(engine.removeRoot(abs) ? "removed" : "not a root:", abs);
-        });
+        }
         break;
       case "index":
         await engine.index((p) => console.log(`${p.done}/${p.total}`));
