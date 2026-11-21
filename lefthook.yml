@@ -1,0 +1,7 @@
+# Git hooks, installed by `pnpm install` (the "prepare" script).
+# Tests and typecheck are left to CI so commits stay fast.
+pre-commit:
+  jobs:
+    - name: biome
+      run: pnpm exec biome check --write --no-errors-on-unmatched --files-ignore-unknown=true {staged_files}
+      stage_fixed: true
