@@ -1,10 +1,10 @@
 {
-  "name": "sample-finder",
+  "name": "sample-seeker",
   "private": true,
   "workspaces": ["packages/core", "packages/desktop"],
   "scripts": {
-    "build": "npm run build -w @sample-finder/core && npm run build -w @sample-finder/desktop",
-    "start": "npm run build && npm start -w @sample-finder/desktop",
+    "build": "npm run build -w @sample-seeker/core && npm run build -w @sample-seeker/desktop",
+    "start": "npm run build && npm start -w @sample-seeker/desktop",
     "rebuild:electron": "electron-rebuild -f -w better-sqlite3",
     "sf": "cross-env ELECTRON_RUN_AS_NODE=1 electron packages/core/dist/cli.js"
   },

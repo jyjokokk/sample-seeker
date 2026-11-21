@@ -4,7 +4,7 @@
  * and pushes { event, data } for things like index progress.
  */
 import { join } from "node:path";
-import { Engine } from "@sample-finder/core";
+import { Engine } from "@sample-seeker/core";
 
 const port = process.parentPort;
 const dataDir = process.env.SF_DATA_DIR!;

@@ -1,5 +1,5 @@
 {
-  "name": "@sample-finder/desktop",
+  "name": "@sample-seeker/desktop",
   "version": "0.1.0",
   "private": true,
   "main": "dist/main.js",
@@ -8,7 +8,7 @@
     "start": "electron ."
   },
   "dependencies": {
-    "@sample-finder/core": "*",
+    "@sample-seeker/core": "*",
     "node-osc": "^11.7.1"
   },
   "devDependencies": {

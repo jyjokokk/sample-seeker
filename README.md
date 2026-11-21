@@ -1,4 +1,4 @@
-# Sample Finder
+# Sample Seeker
 
 Search your local samples with natural language, and get suggestions for
 whatever's selected in Ableton Live.

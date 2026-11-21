@@ -10,7 +10,7 @@ import { Engine } from "./engine";
 
 const { values, positionals } = parseArgs({
   allowPositionals: true,
-  options: { db: { type: "string", default: join(homedir(), ".sample-finder", "index.db") } },
+  options: { db: { type: "string", default: join(homedir(), ".sample-seeker", "index.db") } },
 });
 const [cmd, ...args] = positionals;
 
