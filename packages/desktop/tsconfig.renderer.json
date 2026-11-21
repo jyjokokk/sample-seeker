@@ -1,0 +1,14 @@
+{
+  // Renderer: browser environment, no Node. Talks to main only via window.sf.
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ES2022",
+    "lib": ["ES2022", "DOM"],
+    "types": [],
+    "outDir": "dist/renderer",
+    "rootDir": "renderer",
+    "strict": true,
+    "skipLibCheck": true
+  },
+  "include": ["renderer"]
+}

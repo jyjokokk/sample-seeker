@@ -1,0 +1,8 @@
+body { margin: 0; font: 13px system-ui, sans-serif; background: #16171a; color: #ddd; display: flex; flex-direction: column; height: 100vh; }
+header { display: flex; gap: 8px; padding: 10px; }
+header input { flex: 1; padding: 6px 8px; }
+#daw { padding: 4px 10px; color: #8a8; font-size: 12px; }
+#results { flex: 1; overflow: auto; margin: 0; padding: 0; list-style: none; }
+#results li { padding: 6px 10px; border-bottom: 1px solid #222; cursor: grab; }
+#results li:hover { background: #22242a; }
+footer { padding: 4px 10px; font-size: 11px; color: #888; border-top: 1px solid #222; }

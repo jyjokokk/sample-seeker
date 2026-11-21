@@ -1,0 +1,19 @@
+{
+  "name": "@sample-finder/desktop",
+  "version": "0.1.0",
+  "private": true,
+  "main": "dist/main.js",
+  "scripts": {
+    "build": "tsc -p tsconfig.json && tsc -p tsconfig.renderer.json && node scripts/copy-assets.mjs",
+    "start": "electron ."
+  },
+  "dependencies": {
+    "@sample-finder/core": "*",
+    "node-osc": "^11.7.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "electron": "^45.0.0",
+    "typescript": "^5.6.0"
+  }
+}
