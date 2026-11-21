@@ -4,6 +4,7 @@ packages:
 # pnpm skips dependency install scripts unless they're allowed here.
 allowBuilds:
   better-sqlite3: true
+  lefthook: true
   electron: true
   ffmpeg-static: true
   onnxruntime-node: true
