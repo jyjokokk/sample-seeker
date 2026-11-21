@@ -4,9 +4,16 @@
   "private": true,
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
-  "bin": { "sf": "dist/cli.js" },
+  "bin": {
+    "sample-seeker": "dist/cli.js"
+  },
   "scripts": {
-    "build": "tsc -p ."
+    "build": "tsc -p .",
+    "typecheck": "tsc -p . --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "lint": "biome lint",
+    "check": "biome check --write"
   },
   "dependencies": {
     "@huggingface/transformers": "^4.3.0",

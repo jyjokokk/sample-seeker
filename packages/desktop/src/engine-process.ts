@@ -26,12 +26,23 @@ port.on("message", async ({ data }) => {
     const engine = await ready;
     let result: unknown;
     switch (method) {
-      case "search":  result = await engine.search(args[0], args[1]); break;
-      case "similar": result = await engine.similar(args[0], args[1]); break;
-      case "addRoot": result = engine.addRoot(args[0]); break;
-      case "roots":   result = engine.roots(); break;
-      case "index":   await engine.index((p) => emit("index-progress", p)); break;
-      default: throw new Error(`unknown method ${method}`);
+      case "search":
+        result = await engine.search(args[0], args[1]);
+        break;
+      case "similar":
+        result = await engine.similar(args[0], args[1]);
+        break;
+      case "addRoot":
+        result = engine.addRoot(args[0]);
+        break;
+      case "roots":
+        result = engine.roots();
+        break;
+      case "index":
+        await engine.index((p) => emit("index-progress", p));
+        break;
+      default:
+        throw new Error(`unknown method ${method}`);
     }
     port.postMessage({ id, result });
   } catch (e) {

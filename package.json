@@ -1,15 +1,25 @@
 {
   "name": "sample-seeker",
   "private": true,
+  "packageManager": "pnpm@12.21.0",
   "scripts": {
     "build": "pnpm --filter @sample-seeker/core build && pnpm --filter @sample-seeker/desktop build",
     "start": "pnpm build && pnpm --filter @sample-seeker/desktop start",
-    "rebuild:electron": "electron-rebuild -f -w better-sqlite3 -m packages/core",
-    "sf": "cross-env ELECTRON_RUN_AS_NODE=1 electron packages/core/dist/cli.js"
+    "sample-seeker": "node packages/core/dist/cli.js",
+    "typecheck": "pnpm -r typecheck",
+    "lint": "biome lint",
+    "format": "biome format --write",
+    "check": "biome check --write",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "prepare": "lefthook install"
   },
   "devDependencies": {
-    "@electron/rebuild": "^4.2.0",
-    "cross-env": "^10.1.0",
-    "electron": "^45.0.0"
+    "@biomejs/biome": "2.6.8",
+    "@types/node": "^22.20.5",
+    "electron": "^45.0.0",
+    "lefthook": "^2.2.2",
+    "typescript": "^5.9.3",
+    "vitest": "^5.1.1"
   }
 }

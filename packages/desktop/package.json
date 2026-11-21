@@ -5,7 +5,12 @@
   "main": "dist/main.js",
   "scripts": {
     "build": "tsc -p tsconfig.json && tsc -p tsconfig.renderer.json && node scripts/copy-assets.mjs",
-    "start": "electron ."
+    "start": "electron .",
+    "typecheck": "pnpm --filter @sample-seeker/core build && tsc -p tsconfig.json --noEmit && tsc -p tsconfig.renderer.json --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "lint": "biome lint",
+    "check": "biome check --write"
   },
   "dependencies": {
     "@sample-seeker/core": "workspace:*",

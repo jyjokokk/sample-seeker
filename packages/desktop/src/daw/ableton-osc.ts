@@ -6,7 +6,7 @@
  * Listeners follow the pattern: /live/song/start_listen/<prop> → updates on /live/song/get/<prop>
  */
 import { Client, Server } from "node-osc";
-import { emptyState, type DawAdapter, type DawState } from "./types";
+import { type DawAdapter, type DawState, emptyState } from "./types";
 
 type OscArg = string | number | boolean;
 
@@ -20,7 +20,9 @@ export class AbletonOscAdapter implements DawAdapter {
 
   async connect(): Promise<void> {
     this.server = new Server(11001, "127.0.0.1");
-    this.server.on("message", ([address, ...args]: [string, ...OscArg[]]) => this.handle(address, args));
+    this.server.on("message", ([address, ...args]: [string, ...OscArg[]]) =>
+      this.handle(address, args),
+    );
 
     // Worked example: tempo. Ask once, then subscribe to changes.
     await this.client.send("/live/song/get/tempo");

@@ -15,7 +15,7 @@ packages/
     src/embed.ts    ← CLAP audio/text embeddings                  [TODO]
     src/decode.ts   ← audio → Float32Array via ffmpeg              [TODO]
     src/db.ts       ← SQLite + sqlite-vec, schema
-    src/cli.ts      ← `sf add|index|search|similar`
+    src/cli.ts      ← `sample-seeker add|remove|index|search|similar`
   desktop/     Electron app
     src/main.ts           window, IPC, DAW adapter, drag-out
     src/engine-process.ts utility process that owns the Engine (keeps UI responsive)
@@ -36,15 +36,45 @@ renderer ◄─IPC─► main.ts ◄─RPC─► engine-process.ts ─► core E
 
 ```bash
 pnpm install
-pnpm rebuild:electron   # compile better-sqlite3 for Electron's Node ABI
 pnpm start              # builds core + desktop, launches the app
 ```
 
-For the CLI, `pnpm sf search "dusty piano"` runs it with Electron's
-Node, so you don't have to rebuild the native module back and forth.
+The dev CLI runs on plain Node: `pnpm build`, then
+`pnpm sample-seeker search "dusty piano"`.
+
+The native modules (better-sqlite3, onnxruntime-node) are built on Node-API,
+so the same binaries work in Node and in Electron. Nothing needs rebuilding
+for Electron.
 
 > Linux only: if `pnpm install` fails while onnxruntime-node fetches CUDA
 > binaries, prefix it with `ONNXRUNTIME_NODE_INSTALL_CUDA=skip`.
+
+## Development
+
+All tooling is set up once at the repo root and shared by every package.
+
+| Command           | What it does                                             |
+| ----------------- | -------------------------------------------------------- |
+| `pnpm check`      | Biome: format, lint and sort imports, fixing what it can |
+| `pnpm lint`       | Biome lint only                                          |
+| `pnpm format`     | Biome format only                                        |
+| `pnpm typecheck`  | `tsc --noEmit` for every package                         |
+| `pnpm test`       | Vitest, all packages                                     |
+| `pnpm test:watch` | Vitest in watch mode                                     |
+
+Each package also has its own `test`, `test:watch`, `lint`, `check` and
+`typecheck` scripts. They use the same root configs but only cover that
+package. Run them from the package folder (`cd packages/core && pnpm test`) or
+with a filter (`pnpm --filter @sample-seeker/core test`).
+
+- **Config:** `biome.jsonc` and `vitest.config.mts` at the root. Each package
+  has a small `vitest.config.mts`, and tests live next to the code as
+  `src/**/*.spec.ts`.
+- **Pre-commit hook:** `pnpm install` installs a Lefthook hook that runs Biome
+  on staged files and re-stages its fixes.
+- **CI** (`.github/workflows/ci.yml`) runs Biome, build, typecheck and tests on
+  every PR.
+- **Editor:** install the Biome extension for format-on-save.
 
 ## Ableton setup (AbletonOSC)
 
