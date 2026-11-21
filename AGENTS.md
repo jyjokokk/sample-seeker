@@ -19,3 +19,12 @@ Tasks live on the [Sample Seeker Trello board](https://trello.com/b/YKmqR6fT/sam
   - Branch names: start with the ID in lowercase, e.g. `s6-index-sample-folders` or `s42-1-create-config`. For a subtask, the ID alone (`s42-1`) is enough.
 - The card number is also in the card URL: `trello.com/c/<shortLink>/<number>-<slug>`.
 - The number stays the same when a card is renamed or moved between lists.
+
+## Tests
+
+- Test files are named `*.spec.ts` and live next to the code they test, e.g. `src/db.ts` → `src/db.spec.ts`.
+- Write tests as specs: they describe the behaviour of the code, and they're part of its documentation.
+  - `describe` names the unit (module, class or function). Each `it` states one behaviour as a sentence, e.g. `it("skips files that haven't changed since the last index")`. Don't name tests after implementation details, e.g. `it("calls statSync")`.
+  - Reading only the `describe`/`it` names should tell someone what the code does, including edge cases and error behaviour.
+  - Keep each test focused on one behaviour, with a clear arrange / act / assert flow.
+- Run tests with `pnpm test` (all packages) or `pnpm --filter <package> test` (one package). Tests run inside Electron's Node; see the README.

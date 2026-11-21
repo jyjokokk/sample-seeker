@@ -66,7 +66,7 @@ with a filter (`pnpm --filter @sample-seeker/core test`).
 
 - **Config:** `biome.jsonc` and `vitest.config.mts` at the root. Each package
   has a small `vitest.config.mts`, and tests live next to the code as
-  `src/**/*.test.ts`.
+  `src/**/*.spec.ts`.
 - **Tests run inside Electron's Node** (`ELECTRON_RUN_AS_NODE=1`), like
   `pnpm sf`, because better-sqlite3 is compiled for Electron's ABI. Run
   `pnpm rebuild:electron` first.
