@@ -27,6 +27,29 @@ export class Engine {
     return abs;
   }
 
+  /**
+   * Forget a root and drop its indexed samples (except ones still covered by
+   * another root, e.g. when roots are nested). Returns false if it wasn't a root.
+   */
+  removeRoot(path: string): boolean {
+    const abs = resolve(path);
+    return this.db.transaction(() => {
+      const { changes } = this.db.prepare("DELETE FROM roots WHERE path = ?").run(abs);
+      if (changes === 0) return false;
+      this.db
+        .prepare(
+          `DELETE FROM samples
+           WHERE substr(path, 1, length(@root) + 1) = @root || '/'
+             AND NOT EXISTS (
+               SELECT 1 FROM roots r
+               WHERE substr(samples.path, 1, length(r.path) + 1) = r.path || '/'
+             )`,
+        )
+        .run({ root: abs });
+      return true;
+    })();
+  }
+
   roots(): string[] {
     return this.db.prepare("SELECT path FROM roots").pluck().all() as string[];
   }

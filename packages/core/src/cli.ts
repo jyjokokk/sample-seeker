@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 /**
  * Dev CLI, for testing the engine without the app.
- *   sf add <folder> | sf index | sf search "<query>" | sf similar <file>
+ *   sf add <folder> | sf remove <folder> | sf index | sf search "<query>" | sf similar <file>
  */
 import { homedir } from "node:os";
-import { join } from "node:path";
+import { join, resolve } from "node:path";
 import { parseArgs } from "node:util";
 import { Engine } from "./engine";
 
@@ -19,10 +19,16 @@ async function main() {
   try {
     switch (cmd) {
       case "add":     args.forEach((p) => console.log("added", engine.addRoot(p))); break;
-      case "index":   await engine.index((p) => console.log(`${p.done}/${p.total}`)); break;
+      case "remove":
+        args.forEach((p) => {
+          const abs = resolve(p);
+          console.log(engine.removeRoot(abs) ? "removed" : "not a root:", abs);
+        });
+        break;
+      case "index":  await engine.index((p) => console.log(`${p.done}/${p.total}`)); break;
       case "search":  console.table(await engine.search(args.join(" "))); break;
       case "similar": console.table(await engine.similar(args[0])); break;
-      default:        console.log("usage: sf <add|index|search|similar> ...");
+      default:        console.log("usage: sf <add|remove|index|search|similar> ...");
     }
   } finally {
     engine.close();
