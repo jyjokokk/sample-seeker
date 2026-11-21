@@ -1,6 +1,6 @@
 import { mkdirSync } from "node:fs";
 import { dirname, resolve } from "node:path";
-import { openDb, type DB } from "./db";
+import { type DB, openDb } from "./db";
 import { ClapEmbedder, type Embedder } from "./embed";
 import type { Filters, IndexProgress, SearchResult } from "./types";
 
@@ -12,7 +12,10 @@ export interface EngineOptions {
 
 /** Single entry point used by both the CLI and the desktop app. */
 export class Engine {
-  private constructor(readonly db: DB, readonly embedder: Embedder) {}
+  private constructor(
+    readonly db: DB,
+    readonly embedder: Embedder,
+  ) {}
 
   static async open(opts: EngineOptions): Promise<Engine> {
     mkdirSync(dirname(opts.dbPath), { recursive: true });

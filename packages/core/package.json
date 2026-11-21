@@ -4,7 +4,9 @@
   "private": true,
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
-  "bin": { "sf": "dist/cli.js" },
+  "bin": {
+    "sf": "dist/cli.js"
+  },
   "scripts": {
     "build": "tsc -p ."
   },

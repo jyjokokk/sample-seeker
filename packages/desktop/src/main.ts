@@ -1,7 +1,15 @@
-import { app, BrowserWindow, dialog, ipcMain, nativeImage, utilityProcess, type UtilityProcess } from "electron";
 import path from "node:path";
+import {
+  app,
+  BrowserWindow,
+  dialog,
+  ipcMain,
+  nativeImage,
+  type UtilityProcess,
+  utilityProcess,
+} from "electron";
 import { AbletonOscAdapter } from "./daw/ableton-osc";
-import { emptyState, type DawAdapter, type DawState } from "./daw/types";
+import { type DawAdapter, type DawState, emptyState } from "./daw/types";
 
 let win: BrowserWindow | null = null;
 let engine: UtilityProcess;
@@ -53,13 +61,18 @@ function createWindow() {
   win = new BrowserWindow({
     width: 1000,
     height: 700,
-    webPreferences: { preload: path.join(__dirname, "preload.js"), contextIsolation: true, sandbox: true },
+    webPreferences: {
+      preload: path.join(__dirname, "preload.js"),
+      contextIsolation: true,
+      sandbox: true,
+    },
   });
   win.loadFile(path.join(__dirname, "renderer", "index.html"));
 }
 
 ipcMain.handle("engine", (_e, method: string, args: unknown[]) => {
-  if (!["search", "similar", "roots", "index"].includes(method)) throw new Error(`not allowed: ${method}`);
+  if (!["search", "similar", "roots", "index"].includes(method))
+    throw new Error(`not allowed: ${method}`);
   return call(method, ...args);
 });
 
@@ -73,7 +86,10 @@ ipcMain.handle("daw:get", () => dawState);
 
 // Native file drag-out: this is how a result gets dropped into the DAW.
 ipcMain.on("drag", (e, filePath: string) => {
-  e.sender.startDrag({ file: filePath, icon: nativeImage.createFromPath(path.join(__dirname, "renderer", "drag.png")) });
+  e.sender.startDrag({
+    file: filePath,
+    icon: nativeImage.createFromPath(path.join(__dirname, "renderer", "drag.png")),
+  });
 });
 
 app.whenReady().then(() => {

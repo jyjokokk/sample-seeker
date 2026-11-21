@@ -41,7 +41,9 @@ window.sf.on("index-progress", (p) => (statusBar.textContent = `Indexing ${p.don
 // TODO: when the DAW selection changes and the search box is empty,
 // show window.sf.call("similar", state.selection.path)
 function showDaw(s: DawState) {
-  dawBar.textContent = s.connected ? `Live: ${s.tempo ?? "?"} BPM · ${s.camelot ?? "no key"}` : "Live: not connected";
+  dawBar.textContent = s.connected
+    ? `Live: ${s.tempo ?? "?"} BPM · ${s.camelot ?? "no key"}`
+    : "Live: not connected";
 }
 window.sf.on("daw-state", showDaw);
 window.sf.getDawState().then(showDaw);
