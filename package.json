@@ -1,6 +1,7 @@
 {
   "name": "sample-seeker",
   "private": true,
+  "packageManager": "pnpm@12.21.0",
   "scripts": {
     "build": "pnpm --filter @sample-seeker/core build && pnpm --filter @sample-seeker/desktop build",
     "start": "pnpm build && pnpm --filter @sample-seeker/desktop start",
