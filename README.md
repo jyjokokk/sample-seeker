@@ -50,14 +50,19 @@ Node, so you don't have to rebuild the native module back and forth.
 
 All tooling is set up once at the repo root and shared by every package.
 
-| Command           | What it does                                              |
-| ----------------- | --------------------------------------------------------- |
-| `pnpm check`      | Biome: format, lint and sort imports, fixing what it can  |
-| `pnpm lint`       | Biome lint only                                           |
-| `pnpm format`     | Biome format only                                         |
-| `pnpm typecheck`  | `tsc --noEmit` for every package (run `pnpm build` first) |
-| `pnpm test`       | Vitest, all packages                                      |
-| `pnpm test:watch` | Vitest in watch mode                                      |
+| Command           | What it does                                             |
+| ----------------- | -------------------------------------------------------- |
+| `pnpm check`      | Biome: format, lint and sort imports, fixing what it can |
+| `pnpm lint`       | Biome lint only                                          |
+| `pnpm format`     | Biome format only                                        |
+| `pnpm typecheck`  | `tsc --noEmit` for every package                         |
+| `pnpm test`       | Vitest, all packages                                     |
+| `pnpm test:watch` | Vitest in watch mode                                     |
+
+Each package also has its own `test`, `test:watch`, `lint`, `check` and
+`typecheck` scripts. They use the same root configs but only cover that
+package. Run them from the package folder (`cd packages/core && pnpm test`) or
+with a filter (`pnpm --filter @sample-seeker/core test`).
 
 - **Config:** `biome.jsonc` and `vitest.config.mts` at the root. Each package
   has a small `vitest.config.mts`, and tests live next to the code as

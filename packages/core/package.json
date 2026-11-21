@@ -9,7 +9,11 @@
   },
   "scripts": {
     "build": "tsc -p .",
-    "typecheck": "tsc -p . --noEmit"
+    "typecheck": "tsc -p . --noEmit",
+    "test": "cross-env ELECTRON_RUN_AS_NODE=1 electron ../../node_modules/vitest/vitest.mjs run",
+    "test:watch": "cross-env ELECTRON_RUN_AS_NODE=1 electron ../../node_modules/vitest/vitest.mjs",
+    "lint": "biome lint",
+    "check": "biome check --write"
   },
   "dependencies": {
     "@huggingface/transformers": "^4.3.0",
