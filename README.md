@@ -35,15 +35,15 @@ renderer ◄─IPC─► main.ts ◄─RPC─► engine-process.ts ─► core E
 ## Setup
 
 ```bash
-npm install
-npm run rebuild:electron   # compile better-sqlite3 for Electron's Node ABI
-npm start                  # builds core + desktop, launches the app
+pnpm install
+pnpm rebuild:electron   # compile better-sqlite3 for Electron's Node ABI
+pnpm start              # builds core + desktop, launches the app
 ```
 
-For the CLI, `npm run sf -- search "dusty piano"` runs it with Electron's
+For the CLI, `pnpm sf search "dusty piano"` runs it with Electron's
 Node, so you don't have to rebuild the native module back and forth.
 
-> Linux only: if `npm install` fails while onnxruntime-node fetches CUDA
+> Linux only: if `pnpm install` fails while onnxruntime-node fetches CUDA
 > binaries, prefix it with `ONNXRUNTIME_NODE_INSTALL_CUDA=skip`.
 
 ## Ableton setup (AbletonOSC)

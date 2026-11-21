@@ -8,7 +8,7 @@
     "start": "electron ."
   },
   "dependencies": {
-    "@sample-seeker/core": "*",
+    "@sample-seeker/core": "workspace:*",
     "node-osc": "^11.7.1"
   },
   "devDependencies": {

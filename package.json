@@ -1,15 +1,15 @@
 {
   "name": "sample-seeker",
   "private": true,
-  "workspaces": ["packages/core", "packages/desktop"],
   "scripts": {
-    "build": "npm run build -w @sample-seeker/core && npm run build -w @sample-seeker/desktop",
-    "start": "npm run build && npm start -w @sample-seeker/desktop",
-    "rebuild:electron": "electron-rebuild -f -w better-sqlite3",
+    "build": "pnpm --filter @sample-seeker/core build && pnpm --filter @sample-seeker/desktop build",
+    "start": "pnpm build && pnpm --filter @sample-seeker/desktop start",
+    "rebuild:electron": "electron-rebuild -f -w better-sqlite3 -m packages/core",
     "sf": "cross-env ELECTRON_RUN_AS_NODE=1 electron packages/core/dist/cli.js"
   },
   "devDependencies": {
     "@electron/rebuild": "^4.2.0",
-    "cross-env": "^10.1.0"
+    "cross-env": "^10.1.0",
+    "electron": "^45.0.0"
   }
 }
