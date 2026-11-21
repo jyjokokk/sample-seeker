@@ -61,3 +61,4 @@ Tasks live on the [Sample Seeker Trello board](https://trello.com/b/YKmqR6fT/sam
 - **Biome crashes on the `.claude` symlink in git worktrees** ("path is expected to be under the root"). That's why `biome.jsonc` force-ignores `**/.claude`.
 - **Biome also formats YAML**, including the files in `.github/workflows`. After adding or editing a workflow, run `pnpm check` or CI will fail.
 - **Changing `packageManager` in `package.json` also changes `pnpm-lock.yaml`.** Commit both, or CI's `pnpm install --frozen-lockfile` fails.
+- **No audio in the repo (S24).** Test samples live in the Ableton User Library and are built by `pnpm test-samples` from `scripts/test-samples/manifest.json`. Ableton content may not be redistributed (EULA §5(3)), so commit only names and paths. Freesound additions must be CC0. `.gitignore` blocks audio files. CI can't see these samples, so tests in CI use generated audio and a fake embedder. Details: `scripts/test-samples/README.md`.

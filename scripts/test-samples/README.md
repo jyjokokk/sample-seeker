@@ -37,17 +37,17 @@ is missing or two files in `varied/` are identical.
 
 ## Edge cases
 
-| File | What it tests |
-| --- | --- |
-| `wav-16bit-stereo-44k.wav` | 16-bit WAV, stereo |
-| `wav-24bit-mono-48k.wav` | 24-bit WAV, mono, 48 kHz |
-| `wav-32float-stereo-96k.wav` | 32-bit float, 96 kHz (resampling) |
-| `aiff-16bit-stereo-44k.aif` | AIFF (big-endian PCM) |
-| `mp3-stereo-44k.mp3` | MP3 |
-| `flac-24bit-mono-48k.flac` | FLAC |
-| `long-45s-stereo.wav` | longer than the 30 s decode cap |
-| `corrupt.wav` | RIFF/WAVE header followed by garbage; must fail cleanly |
-| `empty.wav` | 0 bytes; must fail cleanly |
+| File                         | What it tests                                           |
+| ---------------------------- | ------------------------------------------------------- |
+| `wav-16bit-stereo-44k.wav`   | 16-bit WAV, stereo                                      |
+| `wav-24bit-mono-48k.wav`     | 24-bit WAV, mono, 48 kHz                                |
+| `wav-32float-stereo-96k.wav` | 32-bit float, 96 kHz (resampling)                       |
+| `aiff-16bit-stereo-44k.aif`  | AIFF (big-endian PCM)                                   |
+| `mp3-stereo-44k.mp3`         | MP3                                                     |
+| `flac-24bit-mono-48k.flac`   | FLAC                                                    |
+| `long-45s-stereo.wav`        | longer than the 30 s decode cap                         |
+| `corrupt.wav`                | RIFF/WAVE header followed by garbage; must fail cleanly |
+| `empty.wav`                  | 0 bytes; must fail cleanly                              |
 
 ## Licensing
 
@@ -55,7 +55,7 @@ is missing or two files in `varied/` are identical.
 
 - Ableton content (Core Library, Packs) may not be "resold, sublicensed, or otherwise distributed", and
   isolated samples may not be distributed at all (Ableton EULA §5(3)). Copying them into your own User
-  Library for local testing is fine; committing their *names and paths* is fine.
+  Library for local testing is fine; committing their _names and paths_ is fine.
 - Freesound: only CC0 sounds. `build.mjs` checks each sound's license through the API and refuses
   anything else. Add entries as
   `{ "source": "freesound", "id": 12345, "category": "vocal", "target": "...", "originalName": "...", "url": "https://freesound.org/s/12345/" }`

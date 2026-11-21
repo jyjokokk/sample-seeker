@@ -19,29 +19,54 @@ const BAD_NAME_SHARE = 0.35;
 
 // category → source folders (relative to the Core Library or to a Factory Pack), and relative weight.
 const CATEGORIES = {
-  kick: { weight: 1, dirs: ["core:Samples/One Shots/Drums/Kick", "pack:Build and Drop:Samples/One Shots/Kick"] },
-  snare: { weight: 1, dirs: ["core:Samples/One Shots/Drums/Snare", "pack:Build and Drop:Samples/One Shots/Snare"] },
-  clap: { weight: 0.7, dirs: ["core:Samples/One Shots/Drums/Clap", "pack:Build and Drop:Samples/One Shots/Clap"] },
-  hihat: { weight: 1, dirs: ["core:Samples/One Shots/Drums/Hihat", "pack:Build and Drop:Samples/One Shots/Hihat"] },
+  kick: {
+    weight: 1,
+    dirs: ["core:Samples/One Shots/Drums/Kick", "pack:Build and Drop:Samples/One Shots/Kick"],
+  },
+  snare: {
+    weight: 1,
+    dirs: ["core:Samples/One Shots/Drums/Snare", "pack:Build and Drop:Samples/One Shots/Snare"],
+  },
+  clap: {
+    weight: 0.7,
+    dirs: ["core:Samples/One Shots/Drums/Clap", "pack:Build and Drop:Samples/One Shots/Clap"],
+  },
+  hihat: {
+    weight: 1,
+    dirs: ["core:Samples/One Shots/Drums/Hihat", "pack:Build and Drop:Samples/One Shots/Hihat"],
+  },
   cymbal: {
     weight: 0.7,
     dirs: [
-      "core:Samples/One Shots/Drums/Cymbal", "core:Samples/One Shots/Drums/Ride",
-      "pack:Build and Drop:Samples/One Shots/Cymbal", "pack:Build and Drop:Samples/One Shots/Ride",
+      "core:Samples/One Shots/Drums/Cymbal",
+      "core:Samples/One Shots/Drums/Ride",
+      "pack:Build and Drop:Samples/One Shots/Cymbal",
+      "pack:Build and Drop:Samples/One Shots/Ride",
     ],
   },
-  tom: { weight: 0.6, dirs: ["core:Samples/One Shots/Drums/Tom", "pack:Build and Drop:Samples/One Shots/Tom"] },
+  tom: {
+    weight: 0.6,
+    dirs: ["core:Samples/One Shots/Drums/Tom", "pack:Build and Drop:Samples/One Shots/Tom"],
+  },
   perc: {
     weight: 1,
     dirs: [
-      "core:Samples/One Shots/Drums/Misc Percussion", "core:Samples/One Shots/Drums/Bongo",
-      "core:Samples/One Shots/Drums/Conga", "core:Samples/One Shots/Drums/Electronic Percussion",
-      "core:Samples/One Shots/Drums/Bell", "core:Samples/One Shots/Drums/Rim",
-      "pack:Build and Drop:Samples/One Shots/Misc Percussion", "pack:Build and Drop:Samples/One Shots/Shaker",
-      "pack:Build and Drop:Samples/One Shots/Wood", "pack:Build and Drop:Samples/One Shots/Rim",
+      "core:Samples/One Shots/Drums/Misc Percussion",
+      "core:Samples/One Shots/Drums/Bongo",
+      "core:Samples/One Shots/Drums/Conga",
+      "core:Samples/One Shots/Drums/Electronic Percussion",
+      "core:Samples/One Shots/Drums/Bell",
+      "core:Samples/One Shots/Drums/Rim",
+      "pack:Build and Drop:Samples/One Shots/Misc Percussion",
+      "pack:Build and Drop:Samples/One Shots/Shaker",
+      "pack:Build and Drop:Samples/One Shots/Wood",
+      "pack:Build and Drop:Samples/One Shots/Rim",
     ],
   },
-  "drum-loop": { weight: 1.3, dirs: ["core:Samples/Loops/Drums", "pack:Build and Drop:Samples/Loops/Drum Loops"] },
+  "drum-loop": {
+    weight: 1.3,
+    dirs: ["core:Samples/Loops/Drums", "pack:Build and Drop:Samples/Loops/Drum Loops"],
+  },
   bass: {
     weight: 1,
     dirs: ["core:Samples/One Shots/Instrument/Bass", "pack:Build and Drop:Samples/One Shots/Bass"],
@@ -49,44 +74,58 @@ const CATEGORIES = {
   keys: {
     weight: 1,
     dirs: [
-      "core:Samples/One Shots/Instrument/Piano & Keys", "core:Samples/One Shots/Instrument/Mallets",
-      "core:Samples/Multisamples/Grand Piano", "core:Samples/Multisamples/Upright Home Piano",
+      "core:Samples/One Shots/Instrument/Piano & Keys",
+      "core:Samples/One Shots/Instrument/Mallets",
+      "core:Samples/Multisamples/Grand Piano",
+      "core:Samples/Multisamples/Upright Home Piano",
     ],
   },
   synth: {
     weight: 1.2,
     dirs: [
-      "core:Samples/One Shots/Instrument/Synth", "core:Samples/Multisamples/Synths",
+      "core:Samples/One Shots/Instrument/Synth",
+      "core:Samples/Multisamples/Synths",
       "pack:Build and Drop:Samples/One Shots/Synth",
     ],
   },
   instrument: {
     weight: 0.8,
     dirs: [
-      "core:Samples/One Shots/Instrument/Brass", "core:Samples/One Shots/Instrument/Guitar & Plucked",
-      "core:Samples/One Shots/Instrument/Strings", "core:Samples/One Shots/Instrument/Winds",
+      "core:Samples/One Shots/Instrument/Brass",
+      "core:Samples/One Shots/Instrument/Guitar & Plucked",
+      "core:Samples/One Shots/Instrument/Strings",
+      "core:Samples/One Shots/Instrument/Winds",
     ],
   },
-  stab: { weight: 0.7, dirs: ["core:Samples/One Shots/Stab", "pack:Build and Drop:Samples/One Shots/Stabs"] },
+  stab: {
+    weight: 0.7,
+    dirs: ["core:Samples/One Shots/Stab", "pack:Build and Drop:Samples/One Shots/Stabs"],
+  },
   vocal: {
     weight: 1,
     dirs: [
-      "core:Samples/One Shots/Vocal", "core:Samples/Loops/Tonal/Vocal",
+      "core:Samples/One Shots/Vocal",
+      "core:Samples/Loops/Tonal/Vocal",
       "pack:Build and Drop:Samples/One Shots/Vocal",
     ],
   },
   fx: {
     weight: 1,
     dirs: [
-      "core:Samples/One Shots/FX", "core:Samples/One Shots/Drums/FX Hit", "core:Samples/Loops/FX",
-      "pack:Build and Drop:Samples/One Shots/FX Hit", "pack:Build and Drop:Samples/One Shots/Builds and Risers",
+      "core:Samples/One Shots/FX",
+      "core:Samples/One Shots/Drums/FX Hit",
+      "core:Samples/Loops/FX",
+      "pack:Build and Drop:Samples/One Shots/FX Hit",
+      "pack:Build and Drop:Samples/One Shots/Builds and Risers",
       "pack:Build and Drop:Samples/One Shots/Drops",
     ],
   },
   "music-loop": {
     weight: 1.2,
     dirs: [
-      "core:Samples/Loops/Tonal/Guitar", "core:Samples/Loops/Tonal/Keys", "core:Samples/Loops/Tonal/Synth",
+      "core:Samples/Loops/Tonal/Guitar",
+      "core:Samples/Loops/Tonal/Keys",
+      "core:Samples/Loops/Tonal/Synth",
       "pack:Build and Drop:Samples/Loops/Music Loops",
     ],
   },
@@ -107,7 +146,10 @@ const BAD_NAMES = [
 ];
 
 function findCoreLibrary() {
-  const apps = readdirSync("/Applications").filter((n) => /^Ableton Live .*\.app$/.test(n)).sort().reverse();
+  const apps = readdirSync("/Applications")
+    .filter((n) => /^Ableton Live .*\.app$/.test(n))
+    .sort()
+    .reverse();
   for (const app of apps) {
     const p = join("/Applications", app, "Contents/App-Resources/Core Library");
     if (existsSync(p)) return p;
@@ -117,11 +159,13 @@ function findCoreLibrary() {
 
 function walk(dir) {
   if (!existsSync(dir)) return [];
-  return readdirSync(dir).sort().flatMap((name) => {
-    const p = join(dir, name);
-    if (statSync(p).isDirectory()) return walk(p);
-    return AUDIO_EXT.has(extname(name).toLowerCase()) ? [p] : [];
-  });
+  return readdirSync(dir)
+    .sort()
+    .flatMap((name) => {
+      const p = join(dir, name);
+      if (statSync(p).isDirectory()) return walk(p);
+      return AUDIO_EXT.has(extname(name).toLowerCase()) ? [p] : [];
+    });
 }
 
 // Stable sort key per file: a hash, so the order is "random" but the same everywhere.
@@ -130,8 +174,15 @@ const hash = (s) => createHash("sha256").update(s).digest();
 function candidates(spec, roots) {
   const [kind, ...rest] = spec.split(":");
   let source, root, rel;
-  if (kind === "core") { source = "core"; root = roots.core; rel = rest.join(":"); }
-  else { source = `pack:${rest[0]}`; root = join(roots.packs, rest[0]); rel = rest.slice(1).join(":"); }
+  if (kind === "core") {
+    source = "core";
+    root = roots.core;
+    rel = rest.join(":");
+  } else {
+    source = `pack:${rest[0]}`;
+    root = join(roots.packs, rest[0]);
+    rel = rest.slice(1).join(":");
+  }
   return walk(join(root, rel)).map((abs) => ({ source, path: relative(root, abs) }));
 }
 
@@ -148,11 +199,12 @@ function main() {
   const remaining = total - freesound.length;
   const entries = [];
   const takenGroups = new Set(); // one note per multisample instrument
-  const takenNames = new Set();  // Ableton ships some identical files under the same name in several places
+  const takenNames = new Set(); // Ableton ships some identical files under the same name in several places
 
   for (const [category, { weight, dirs }] of Object.entries(CATEGORIES)) {
     const want = Math.max(1, Math.round((remaining * weight) / weightSum));
-    const pool = dirs.flatMap((d) => candidates(d, roots))
+    const pool = dirs
+      .flatMap((d) => candidates(d, roots))
       .sort((a, b) => Buffer.compare(hash(a.path), hash(b.path)));
     let got = 0;
     for (const c of pool) {
@@ -176,7 +228,8 @@ function main() {
     const h = hash(`badname:${e.path}`);
     const ext = extname(e.path);
     let target = basename(e.path);
-    if (h[0] / 256 < BAD_NAME_SHARE) target = BAD_NAMES[h[1] % BAD_NAMES.length](1 + (((h[2] << 8) | h[3]) % 999)) + ext;
+    if (h[0] / 256 < BAD_NAME_SHARE)
+      target = BAD_NAMES[h[1] % BAD_NAMES.length](1 + (((h[2] << 8) | h[3]) % 999)) + ext;
     while (used.has(target)) target = `${basename(target, ext)} 2${ext}`;
     used.add(target);
     return { source: e.source, path: e.path, category: e.category, target };
@@ -184,11 +237,15 @@ function main() {
 
   const manifest = {
     folder: old?.folder ?? "Samples/Sample Seeker Test",
-    note: old?.note ?? "Ableton entries are copied from local Live content and must never be committed or shared (EULA §5(3)). Freesound entries must be CC0.",
+    note:
+      old?.note ??
+      "Ableton entries are copied from local Live content and must never be committed or shared (EULA §5(3)). Freesound entries must be CC0.",
     varied: [...varied, ...freesound],
   };
-  writeFileSync(manifestPath, JSON.stringify(manifest, null, 2) + "\n");
-  console.log(`wrote ${manifest.varied.length} entries (${varied.length} Ableton, ${freesound.length} Freesound)`);
+  writeFileSync(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`);
+  console.log(
+    `wrote ${manifest.varied.length} entries (${varied.length} Ableton, ${freesound.length} Freesound)`,
+  );
 }
 
 main();

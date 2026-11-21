@@ -12,7 +12,14 @@
 import { spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import {
-  copyFileSync, existsSync, mkdirSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync,
+  copyFileSync,
+  existsSync,
+  mkdirSync,
+  readdirSync,
+  readFileSync,
+  rmSync,
+  statSync,
+  writeFileSync,
 } from "node:fs";
 import { homedir } from "node:os";
 import { basename, dirname, extname, join } from "node:path";
@@ -25,7 +32,11 @@ const CC0 = "creativecommons.org/publicdomain/zero/1.0";
 // ---------- args ----------
 
 function parseArgs(argv) {
-  const args = { userLibrary: join(homedir(), "Music/Ableton/User Library"), bulk: 0, force: false };
+  const args = {
+    userLibrary: join(homedir(), "Music/Ableton/User Library"),
+    bulk: 0,
+    force: false,
+  };
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
     if (a === "--user-library") args.userLibrary = argv[++i];
@@ -36,7 +47,8 @@ function parseArgs(argv) {
       process.exit(0);
     } else throw new Error(`unknown argument: ${a}`);
   }
-  if (!Number.isInteger(args.bulk) || args.bulk < 0) throw new Error("--bulk must be a non-negative integer");
+  if (!Number.isInteger(args.bulk) || args.bulk < 0)
+    throw new Error("--bulk must be a non-negative integer");
   return args;
 }
 
@@ -44,7 +56,10 @@ function parseArgs(argv) {
 
 function findCoreLibrary() {
   if (!existsSync("/Applications")) return null;
-  const apps = readdirSync("/Applications").filter((n) => /^Ableton Live .*\.app$/.test(n)).sort().reverse();
+  const apps = readdirSync("/Applications")
+    .filter((n) => /^Ableton Live .*\.app$/.test(n))
+    .sort()
+    .reverse();
   for (const app of apps) {
     const p = join("/Applications", app, "Contents/App-Resources/Core Library");
     if (existsSync(p)) return p;
@@ -54,7 +69,8 @@ function findCoreLibrary() {
 
 function sourceRoot(entry, roots) {
   if (entry.source === "core") return roots.core;
-  if (entry.source.startsWith("pack:")) return join(roots.packs, entry.source.slice("pack:".length));
+  if (entry.source.startsWith("pack:"))
+    return join(roots.packs, entry.source.slice("pack:".length));
   return null;
 }
 
@@ -69,7 +85,8 @@ function sameFile(a, b) {
 function ffmpeg(args) {
   const bin = process.env.FFMPEG ?? "ffmpeg";
   const r = spawnSync(bin, ["-v", "error", "-nostdin", "-y", ...args], { encoding: "utf8" });
-  if (r.error) throw new Error(`could not run ${bin}: ${r.error.message} (install ffmpeg or set FFMPEG)`);
+  if (r.error)
+    throw new Error(`could not run ${bin}: ${r.error.message} (install ffmpeg or set FFMPEG)`);
   if (r.status !== 0) throw new Error(`ffmpeg failed: ${r.stderr.trim()}`);
 }
 
@@ -99,7 +116,10 @@ async function buildVaried(manifest, roots, outDir, force) {
     const dest = join(outDir, entry.target);
 
     if (entry.source === "freesound") {
-      if (existsSync(dest) && !force) { stats.skipped++; continue; }
+      if (existsSync(dest) && !force) {
+        stats.skipped++;
+        continue;
+      }
       const result = await downloadFreesound(entry, dest);
       stats[result === "ok" ? "copied" : result === "nokey" ? "skipped" : "missing"]++;
       continue;
@@ -112,7 +132,10 @@ async function buildVaried(manifest, roots, outDir, force) {
       stats.missing++;
       continue;
     }
-    if (!force && sameFile(src, dest)) { stats.skipped++; continue; }
+    if (!force && sameFile(src, dest)) {
+      stats.skipped++;
+      continue;
+    }
     copyFileSync(src, dest);
     stats.copied++;
   }
@@ -135,14 +158,20 @@ async function downloadFreesound(entry, dest) {
   const meta = await fetch(
     `https://freesound.org/apiv2/sounds/${entry.id}/?fields=id,name,license,previews&token=${encodeURIComponent(key)}`,
   );
-  if (!meta.ok) { console.warn(`  Freesound #${entry.id}: HTTP ${meta.status}`); return "failed"; }
+  if (!meta.ok) {
+    console.warn(`  Freesound #${entry.id}: HTTP ${meta.status}`);
+    return "failed";
+  }
   const info = await meta.json();
   if (!String(info.license).includes(CC0)) {
     console.warn(`  refused Freesound #${entry.id}: license is ${info.license}, not CC0`);
     return "failed";
   }
   const audio = await fetch(info.previews["preview-hq-mp3"]);
-  if (!audio.ok) { console.warn(`  Freesound #${entry.id}: download HTTP ${audio.status}`); return "failed"; }
+  if (!audio.ok) {
+    console.warn(`  Freesound #${entry.id}: download HTTP ${audio.status}`);
+    return "failed";
+  }
   writeFileSync(dest, Buffer.from(await audio.arrayBuffer()));
   return "ok";
 }
@@ -164,21 +193,55 @@ function findDuplicates(dir) {
 
 // Each case: output name + ffmpeg args (after the input). Inputs are synthetic, so no licensing questions.
 const TONE = (seconds, channels) => [
-  "-f", "lavfi", "-i", `sine=frequency=220:sample_rate=48000:duration=${seconds}`,
-  "-f", "lavfi", "-i", `sine=frequency=330:sample_rate=48000:duration=${seconds}`,
-  "-filter_complex", channels === 2 ? "[0][1]join=inputs=2:channel_layout=stereo" : "[0][1]amix=inputs=2",
+  "-f",
+  "lavfi",
+  "-i",
+  `sine=frequency=220:sample_rate=48000:duration=${seconds}`,
+  "-f",
+  "lavfi",
+  "-i",
+  `sine=frequency=330:sample_rate=48000:duration=${seconds}`,
+  "-filter_complex",
+  channels === 2 ? "[0][1]join=inputs=2:channel_layout=stereo" : "[0][1]amix=inputs=2",
 ];
 
 const EDGE_CASES = [
-  { name: "wav-16bit-stereo-44k.wav", input: TONE(3, 2), out: ["-ar", "44100", "-c:a", "pcm_s16le"] },
+  {
+    name: "wav-16bit-stereo-44k.wav",
+    input: TONE(3, 2),
+    out: ["-ar", "44100", "-c:a", "pcm_s16le"],
+  },
   { name: "wav-24bit-mono-48k.wav", input: TONE(3, 1), out: ["-ar", "48000", "-c:a", "pcm_s24le"] },
-  { name: "wav-32float-stereo-96k.wav", input: TONE(3, 2), out: ["-ar", "96000", "-c:a", "pcm_f32le"] },
-  { name: "aiff-16bit-stereo-44k.aif", input: TONE(3, 2), out: ["-ar", "44100", "-c:a", "pcm_s16be", "-f", "aiff"] },
-  { name: "mp3-stereo-44k.mp3", input: TONE(3, 2), out: ["-ar", "44100", "-c:a", "libmp3lame", "-b:a", "192k"] },
-  { name: "flac-24bit-mono-48k.flac", input: TONE(3, 1), out: ["-ar", "48000", "-c:a", "flac", "-sample_fmt", "s32"] },
+  {
+    name: "wav-32float-stereo-96k.wav",
+    input: TONE(3, 2),
+    out: ["-ar", "96000", "-c:a", "pcm_f32le"],
+  },
+  {
+    name: "aiff-16bit-stereo-44k.aif",
+    input: TONE(3, 2),
+    out: ["-ar", "44100", "-c:a", "pcm_s16be", "-f", "aiff"],
+  },
+  {
+    name: "mp3-stereo-44k.mp3",
+    input: TONE(3, 2),
+    out: ["-ar", "44100", "-c:a", "libmp3lame", "-b:a", "192k"],
+  },
+  {
+    name: "flac-24bit-mono-48k.flac",
+    input: TONE(3, 1),
+    out: ["-ar", "48000", "-c:a", "flac", "-sample_fmt", "s32"],
+  },
   {
     name: "long-45s-stereo.wav",
-    input: ["-f", "lavfi", "-i", "anoisesrc=color=pink:amplitude=0.2:sample_rate=44100:duration=45:seed=24", "-ac", "2"],
+    input: [
+      "-f",
+      "lavfi",
+      "-i",
+      "anoisesrc=color=pink:amplitude=0.2:sample_rate=44100:duration=45:seed=24",
+      "-ac",
+      "2",
+    ],
     out: ["-c:a", "pcm_s16le"],
   },
 ];
@@ -195,8 +258,16 @@ function buildEdgeCases(outDir, force) {
   }
 
   // corrupt.wav: a RIFF/WAVE header followed by garbage instead of fmt/data chunks.
-  const corrupt = Buffer.concat([Buffer.from("RIFF"), Buffer.from([0x24, 0x10, 0, 0]), Buffer.from("WAVE"), garbage(4096)]);
-  for (const [name, bytes] of [["corrupt.wav", corrupt], ["empty.wav", Buffer.alloc(0)]]) {
+  const corrupt = Buffer.concat([
+    Buffer.from("RIFF"),
+    Buffer.from([0x24, 0x10, 0, 0]),
+    Buffer.from("WAVE"),
+    garbage(4096),
+  ]);
+  for (const [name, bytes] of [
+    ["corrupt.wav", corrupt],
+    ["empty.wav", Buffer.alloc(0)],
+  ]) {
     const dest = join(outDir, name);
     if (existsSync(dest) && !force) continue;
     writeFileSync(dest, bytes);
@@ -210,7 +281,10 @@ function buildEdgeCases(outDir, force) {
 function buildBulk(variedDir, outDir, n) {
   rmSync(outDir, { recursive: true, force: true });
   mkdirSync(outDir, { recursive: true });
-  const seeds = readdirSync(variedDir).filter((f) => AUDIO_EXT.has(extname(f).toLowerCase())).sort().slice(0, 10);
+  const seeds = readdirSync(variedDir)
+    .filter((f) => AUDIO_EXT.has(extname(f).toLowerCase()))
+    .sort()
+    .slice(0, 10);
   if (seeds.length === 0) throw new Error("bulk/ needs files in varied/ first");
   for (let i = 0; i < n; i++) {
     const src = seeds[i % seeds.length];
@@ -223,7 +297,8 @@ function buildBulk(variedDir, outDir, n) {
 
 async function main() {
   const args = parseArgs(process.argv.slice(2));
-  if (!existsSync(args.userLibrary)) throw new Error(`User Library not found: ${args.userLibrary} (use --user-library)`);
+  if (!existsSync(args.userLibrary))
+    throw new Error(`User Library not found: ${args.userLibrary} (use --user-library)`);
 
   const manifest = JSON.parse(readFileSync(join(HERE, "manifest.json"), "utf8"));
   const roots = { core: findCoreLibrary(), packs: join(homedir(), "Music/Ableton/Factory Packs") };
@@ -239,7 +314,9 @@ async function main() {
   const variedDir = join(base, "varied");
   const { stats, counts } = await buildVaried(manifest, roots, variedDir, args.force);
   console.log(`  ${stats.copied} copied, ${stats.skipped} unchanged, ${stats.missing} missing`);
-  const renamed = manifest.varied.filter((e) => e.target !== (e.originalName ?? basename(e.path ?? ""))).length;
+  const renamed = manifest.varied.filter(
+    (e) => e.target !== (e.originalName ?? basename(e.path ?? "")),
+  ).length;
   console.log(`  ${manifest.varied.length} entries, ${renamed} badly named`);
   for (const [cat, n] of Object.entries(counts).sort()) console.log(`    ${cat.padEnd(12)} ${n}`);
 
