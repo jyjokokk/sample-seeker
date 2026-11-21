@@ -22,6 +22,11 @@ How to write entries:
 - Permission covers only what was asked. A request to commit isn't permission to push, and permission given for one change doesn't carry over to the next.
 - When opening a new branch, rebase against `origin/main`
 - When about to merge a branch into main, rebase from `origin/main` in case of merge conflicts
+- Merge strategy: always rebase the branch onto `origin/main` first, and run `pnpm check && pnpm test` on the rebased code. Then:
+  - For a card with several subtask commits, merge with `git merge --no-ff`. The merge commit marks the card boundary, so `git log --first-parent main` reads one line per card.
+  - For a single commit or a small change, merge with `git merge --ff-only`.
+  - Don't merge without rebasing first.
+- Pull requests are optional. Use one when you want CI, a written record or to try out a workflow; small changes can be merged locally. When merging a PR on GitHub, use "Create a merge commit", which is the same as `--no-ff`. After rebasing a pushed branch, push with `git push --force-with-lease`.
 
 ## Task tracking (Trello)
 
