@@ -24,6 +24,7 @@ import {
   readFileSync,
   renameSync,
   rmSync,
+  statSync,
   writeFileSync,
 } from "node:fs";
 import { homedir } from "node:os";
@@ -261,10 +262,19 @@ async function buildVaried(manifest: Manifest, base: string, force: boolean) {
 
   if (todo.length > 0)
     console.log(`  downloading ${todo.length} sound(s) from Freesound (rate-limited, ~2 s each)…`);
+  const started = Date.now();
+  const width = String(todo.length).length;
+  // "[ 12/149]", plus the estimated time left once a few sounds have been timed.
+  const progress = (done: number) => {
+    const counter = `[${String(done).padStart(width)}/${todo.length}]`;
+    if (done < 3 || done === todo.length) return counter;
+    const left = ((Date.now() - started) / done) * (todo.length - done);
+    return `${counter} ~${Math.ceil(left / 60_000)} min left`;
+  };
   try {
-    for (const s of todo) {
+    for (const [i, s] of todo.entries()) {
       const reject = (why: string) => {
-        console.error(`  rejected ${s.id} (${s.category}): ${why}`);
+        console.error(`  ${progress(i + 1)} rejected ${s.id} (${s.category}): ${why}`);
         stats.rejected++;
       };
       const info = await soundInfo(s.id);
@@ -306,6 +316,8 @@ async function buildVaried(manifest: Manifest, base: string, force: boolean) {
       });
       writeIndex(indexPath, index); // keep progress if the run is interrupted
       stats.downloaded++;
+      const kb = Math.round(statSync(join(variedDir, file)).size / 1024);
+      console.log(`  ${progress(i + 1)} ${s.category.padEnd(10)} ${file} (${kb} KB)`);
     }
   } finally {
     if (index.size > 0 || existsSync(indexPath)) writeIndex(indexPath, index);
