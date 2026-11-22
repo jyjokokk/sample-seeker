@@ -27,6 +27,10 @@ How to write entries:
   - For a single commit or a small change, merge with `git merge --ff-only`.
   - Don't merge without rebasing first.
 - Pull requests are optional. Use one when you want CI, a written record or to try out a workflow; small changes can be merged locally. When merging a PR on GitHub, use "Create a merge commit", which is the same as `--no-ff`. After rebasing a pushed branch, push with `git push --force-with-lease`.
+- Stacked PRs: split a large card into a stack of PRs, one per topic, with the `gh stack` extension (`gh extension install github/gh-stack`). Every branch keeps the card ID with a descriptive name, e.g. `s24-freesound-client`; no new cards are needed.
+  - Create: `gh stack init <branches, bottom to top>` (adopts existing branches), then `gh stack submit` (creates the PRs and the stack on GitHub; it also links PRs that already exist).
+  - After changing a lower branch: `gh stack rebase` cascades the change up the stack, and `gh stack push` pushes it. `gh stack sync` does fetch, rebase and push in one go.
+  - Merge: `gh stack merge --merge`, from the bottom up. GitHub needs the stack rebased on `main` first, and every PR being merged must pass its checks. The history is the same as merging each PR on its own with a merge commit, so `git log --first-parent main` reads one line per PR. You can merge only the lower PRs; the rest stay open and retarget `main`.
 
 ## Task tracking (Trello)
 
