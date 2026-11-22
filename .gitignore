@@ -176,3 +176,14 @@ Icon
 Network Trash Folder
 Temporary Items
 .apdisk
+
+# Audio (S24): test samples are downloaded from Freesound into the Ableton User Library,
+# never in the repo; see scripts/test-samples/README.md.
+*.wav
+*.aif
+*.aiff
+*.mp3
+*.flac
+*.ogg
+*.m4a
+*.asd
