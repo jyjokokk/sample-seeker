@@ -27,6 +27,10 @@ How to write entries:
   - For a single commit or a small change, merge with `git merge --ff-only`.
   - Don't merge without rebasing first.
 - Pull requests are optional. Use one when you want CI, a written record or to try out a workflow; small changes can be merged locally. When merging a PR on GitHub, use "Create a merge commit", which is the same as `--no-ff`. After rebasing a pushed branch, push with `git push --force-with-lease`.
+- Stacked PRs: split a large card into a stack of PRs, one per topic, with the `gh stack` extension (`gh extension install github/gh-stack`). Every branch keeps the card ID with a descriptive name, e.g. `s24-freesound-client`; no new cards are needed.
+  - Create: `gh stack init <branches, bottom to top>` (adopts existing branches), then `gh stack submit` (creates the PRs and the stack on GitHub; it also links PRs that already exist).
+  - After changing a lower branch: `gh stack rebase` cascades the change up the stack, and `gh stack push` pushes it. `gh stack sync` does fetch, rebase and push in one go.
+  - Merge: `gh stack merge --merge`, from the bottom up. GitHub needs the stack rebased on `main` first, and every PR being merged must pass its checks. The history is the same as merging each PR on its own with a merge commit, so `git log --first-parent main` reads one line per PR. You can merge only the lower PRs; the rest stay open and retarget `main`.
 
 ## Task tracking (Trello)
 
@@ -63,10 +67,11 @@ Tasks live on the [Sample Seeker Trello board](https://trello.com/b/YKmqR6fT/sam
 
 ## Decisions and findings
 
-- **Tooling is shared at the repo root (S27).** Biome handles lint and format (`biome.jsonc`) and Vitest handles tests (`vitest.config.mts`, with each package as a project). Every package has its own `test`, `lint`, `check` and `typecheck` scripts that use the root configs. Add new packages the same way instead of giving them their own tool configs.
+- **Tooling is shared at the repo root (S27).** Biome handles lint and format (`biome.jsonc`) and Vitest handles tests (`vitest.config.ts`, with each package as a project). Every package has its own `test`, `lint`, `check` and `typecheck` scripts that use the root configs. Add new packages the same way instead of giving them their own tool configs.
 - **No native rebuild for Electron (S27).** better-sqlite3 (v13 and later) and onnxruntime-node are built on Node-API, so one binary loads in both plain Node and Electron. ffmpeg-static is a standalone executable. That's why tests and the CLI run on plain Node, and there's no `electron-rebuild` step. Older notes (the scaffold, S2) say better-sqlite3 needs rebuilding for Electron; that was true before v13. If you add a native dependency, check that it uses Node-API before assuming it works in both runtimes.
 - **The dev CLI is called `sample-seeker`** (`pnpm sample-seeker <command>`). It used to be called `sf`, which was undocumented. `window.sf` (the renderer API) and `SF_DATA_DIR` still use the old abbreviation.
 - **`desktop` resolves `@sample-seeker/core` through `core/dist`.** That's why desktop's `typecheck` builds core first.
 - **Biome crashes on the `.claude` symlink in git worktrees** ("path is expected to be under the root"). That's why `biome.jsonc` force-ignores `**/.claude`.
 - **Biome also formats YAML**, including the files in `.github/workflows`. After adding or editing a workflow, run `pnpm check` or CI will fail.
 - **Changing `packageManager` in `package.json` also changes `pnpm-lock.yaml`.** Commit both, or CI's `pnpm install --frozen-lockfile` fails.
+- **Repo scripts are TypeScript run directly by Node (S24).** The root `package.json` has `"type": "module"`, and scripts under `scripts/` are plain `.ts` files run with `node` (type stripping, Node 22.18+; CI uses 24). Use only erasable syntax (no enums, namespaces or parameter properties) and import with `.ts` extensions. `scripts/tsconfig.json` type-checks them as part of `pnpm typecheck`. Their specs run in the `scripts` Vitest project (`scripts/vitest.config.ts`). A script that is also imported by tests runs its `main()` only under `if (import.meta.main)`. The packages stay CommonJS, so their `vitest.config.mts` files keep the `.mts` extension.

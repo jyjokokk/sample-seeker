@@ -67,7 +67,7 @@ Each package also has its own `test`, `test:watch`, `lint`, `check` and
 package. Run them from the package folder (`cd packages/core && pnpm test`) or
 with a filter (`pnpm --filter @sample-seeker/core test`).
 
-- **Config:** `biome.jsonc` and `vitest.config.mts` at the root. Each package
+- **Config:** `biome.jsonc` and `vitest.config.ts` at the root. Each package
   has a small `vitest.config.mts`, and tests live next to the code as
   `src/**/*.spec.ts`.
 - **Pre-commit hook:** `pnpm install` installs a Lefthook hook that runs Biome

@@ -1,12 +1,13 @@
 {
   "name": "sample-seeker",
   "private": true,
+  "type": "module",
   "packageManager": "pnpm@12.21.0",
   "scripts": {
     "build": "pnpm --filter @sample-seeker/core build && pnpm --filter @sample-seeker/desktop build",
     "start": "pnpm build && pnpm --filter @sample-seeker/desktop start",
     "sample-seeker": "node packages/core/dist/cli.js",
-    "typecheck": "pnpm -r typecheck",
+    "typecheck": "pnpm -r typecheck && tsc -p scripts",
     "lint": "biome lint",
     "format": "biome format --write",
     "check": "biome check --write",
