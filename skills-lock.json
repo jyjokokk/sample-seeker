@@ -1,0 +1,19 @@
+{
+  "version": 2,
+  "skills": {
+    "code-simplifier": {
+      "source": "davila7/claude-code-templates",
+      "commit": "3c907d7700f6e883965ab31744908a1bf5382d70",
+      "sourceType": "github",
+      "skillPath": "cli-tool/components/skills/productivity/code-simplifier/SKILL.md",
+      "computedHash": "6c8075e681d9e120334a3b32a3922cfc7a1fdff1ee71fad7219933a8c2f67fb4"
+    },
+    "writing-tests": {
+      "source": "PostHog/posthog",
+      "commit": "f8578e08e928efe84eb757bc3ab9292444cfe4c1",
+      "sourceType": "github",
+      "skillPath": ".agents/skills/writing-tests/SKILL.md",
+      "computedHash": "601f7b91567002b40eeeef53ee85badab2cacb9f0e981d422a7d042a1e46251e"
+    }
+  }
+}
