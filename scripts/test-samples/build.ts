@@ -36,7 +36,7 @@ import {
   CC0,
   downloadOriginal,
   exchangeCode,
-  soundInfo,
+  soundInfos,
 } from "./freesound.ts";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -271,13 +271,15 @@ async function buildVaried(manifest: Manifest, base: string, force: boolean) {
     const left = ((Date.now() - started) / done) * (todo.length - done);
     return `${counter} ~${Math.ceil(left / 60_000)} min left`;
   };
+  // One search request for all metadata, so the daily request limit goes to downloads (see freesound.ts).
+  const infos = await soundInfos(todo.map((s) => s.id)); // no request when nothing to do
   try {
     for (const [i, s] of todo.entries()) {
       const reject = (why: string) => {
         console.error(`  ${progress(i + 1)} rejected ${s.id} (${s.category}): ${why}`);
         stats.rejected++;
       };
-      const info = await soundInfo(s.id);
+      const info = infos.get(s.id);
       if (!info) {
         reject("no longer on Freesound (maintainer: replace it in manifest.json)");
         continue;
@@ -327,7 +329,8 @@ async function buildVaried(manifest: Manifest, base: string, force: boolean) {
   // Files on disk that the manifest doesn't list. Left alone: they may be the user's.
   const known = new Set([...index.values()].map((e) => e.file));
   for (const name of readdirSync(variedDir).sort()) {
-    if (!known.has(name) && !name.startsWith("."))
+    // Only audio: Live adds an .asd analysis file next to every sample it has previewed.
+    if (!known.has(name) && !name.startsWith(".") && AUDIO_EXT.has(extname(name).toLowerCase()))
       console.warn(`  not in manifest (remove by hand if stale): varied/${name}`);
   }
   return { stats, index };

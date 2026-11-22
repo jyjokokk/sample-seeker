@@ -49,8 +49,10 @@ pnpm test-samples --force                  # rewrite everything
 The default User Library is `~/Music/Ableton/User Library` on macOS and
 `~/Documents/Ableton/User Library` on Windows (Live: Settings → Library). Elsewhere, pass `--user-library`.
 
-The first run downloads ~150 sounds (~210 MB). It is rate-limited to Freesound's limits (30 downloads a
-minute), so it takes about 6 minutes. Every file is checked against its sha256 in `manifest.json`; a file
+The first run downloads ~150 sounds (~210 MB) in about 6–8 minutes. Freesound allows 30 API requests a
+minute and **500 a day** for downloads, counted over everything your Freesound account does through the API
+(a rolling 24 hours). A full download uses ~150 of those. If you hit the daily limit, the run stops; progress
+is saved, so run it again later to get the rest. Every file is checked against its sha256 in `manifest.json`; a file
 that doesn't match is not written and the run fails. Re-runs only download what is missing or changed, so a
 complete set needs no network or login. Files in `varied/` that the manifest doesn't list are reported, not
 deleted.

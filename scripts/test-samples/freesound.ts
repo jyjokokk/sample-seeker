@@ -26,9 +26,14 @@ const API = "https://freesound.org/apiv2";
 const CONFIG = process.env.FREESOUND_CONFIG_DIR ?? join(homedir(), ".config/freesound");
 const TOKEN_FILE = join(CONFIG, "token.json");
 
-// Freesound's limits: 60 requests/min overall, 30 downloads/min (and 2000 requests, 500 downloads a day).
-const REQUEST_GAP_MS = 1100;
-const DOWNLOAD_GAP_MS = 2100;
+// Freesound keeps ONE request history per user for all API calls, and the download endpoint checks it
+// against stricter limits: 30 requests a minute and 500 a day (MTG/freesound: DownloadAPIView,
+// APIV2_POST_THROTTLING_RATES_PER_LEVELS). So every request, not only downloads, counts towards those.
+// Spacing all requests 2.1 s apart stays under 30 a minute; fetching metadata in one search request keeps
+// the daily count to about one request per sound.
+const REQUEST_GAP_MS = 2100;
+// Wait and retry when Freesound asks for at most this long; a longer wait means the daily limit.
+const MAX_RETRY_WAIT_S = 120;
 
 export const CC0 = /^https?:\/\/creativecommons\.org\/publicdomain\/zero\/1\.0\/?$/;
 
@@ -150,35 +155,71 @@ async function accessToken(): Promise<string> {
 
 // ---------- throttled requests ----------
 
-const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
-const last = { request: 0, download: 0 };
+/** Freesound refused a request because of its rate limits and wants us to wait longer than is sensible. */
+export class RateLimitError extends Error {}
 
-async function throttled(kind: keyof typeof last, gap: number, url: string): Promise<Response> {
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+let lastRequest = 0;
+
+async function throttled(url: string): Promise<Response> {
   for (let attempt = 1; ; attempt++) {
-    const wait = Math.max(last.request + REQUEST_GAP_MS, last[kind] + gap) - Date.now();
+    const wait = lastRequest + REQUEST_GAP_MS - Date.now();
     if (wait > 0) await sleep(wait);
-    last.request = last[kind] = Date.now();
+    lastRequest = Date.now();
     const res = await fetch(url, { headers: { Authorization: `Bearer ${await accessToken()}` } });
     if (res.status === 401)
       throw new AuthError("Freesound rejected the login: run `pnpm test-samples auth`");
-    if (res.status !== 429 || attempt === 3) return res;
-    console.warn("  Freesound rate limit hit, waiting a minute…");
-    await sleep(61_000);
+    if (res.status !== 429) return res;
+
+    // Freesound (Django REST framework) says why in the body, e.g. "... limit rate (500/day)", and how long
+    // to wait in Retry-After. For the daily limit Retry-After is still ~60 s, which is useless: the limit
+    // is a rolling 24 h window, so requests free up 24 h after they were made. Stop at once instead.
+    const retryAfter = Number(res.headers.get("retry-after") ?? 60);
+    const detail = await res
+      .json()
+      .then((b) => (b as { detail?: string }).detail ?? "")
+      .catch(() => "");
+    if (/\/day\b/.test(detail))
+      throw new RateLimitError(
+        `Freesound's daily limit reached (${detail}). It counts all of your Freesound account's API ` +
+          "requests over a rolling 24 hours, so capacity frees up 24 h after the requests were made. " +
+          "Progress is saved: run `pnpm test-samples` again later to download the rest.",
+      );
+    if (retryAfter > MAX_RETRY_WAIT_S || attempt === 3)
+      throw new RateLimitError(
+        `Freesound rate limit: ${detail || "too many requests"}. Progress is saved: ` +
+          "run `pnpm test-samples` again in a few minutes.",
+      );
+    console.warn(`  Freesound rate limit (${detail || "429"}), waiting ${retryAfter} s…`);
+    await sleep(retryAfter * 1000);
   }
 }
 
-/** Metadata of one sound, or null if it no longer exists on Freesound. */
-export async function soundInfo(id: number): Promise<SoundInfo | null> {
+/**
+ * Metadata of many sounds with as few requests as possible (one per 100 ids), so that the daily request
+ * limit goes to downloads. Sounds missing from the result no longer exist on Freesound.
+ */
+export async function soundInfos(ids: number[]): Promise<Map<number, SoundInfo>> {
+  const infos = new Map<number, SoundInfo>();
   const fields = "id,name,username,license,type,filesize,url";
-  const res = await throttled("request", REQUEST_GAP_MS, `${API}/sounds/${id}/?fields=${fields}`);
-  if (res.status === 404) return null;
-  if (!res.ok) throw new Error(`Freesound sound ${id}: HTTP ${res.status}`);
-  return (await res.json()) as SoundInfo;
+  for (let i = 0; i < ids.length; i += 100) {
+    const chunk = ids.slice(i, i + 100);
+    const params = new URLSearchParams({
+      filter: `id:(${chunk.join(" OR ")})`,
+      fields,
+      page_size: "150",
+    });
+    const res = await throttled(`${API}/search/text/?${params}`);
+    if (!res.ok) throw new Error(`Freesound search for sound metadata: HTTP ${res.status}`);
+    const body = (await res.json()) as { results: SoundInfo[] };
+    for (const info of body.results) infos.set(info.id, info);
+  }
+  return infos;
 }
 
 /** Downloads the original file of a sound to dest (via dest.part, so a failed download leaves nothing). */
 export async function downloadOriginal(id: number, dest: string): Promise<void> {
-  const res = await throttled("download", DOWNLOAD_GAP_MS, `${API}/sounds/${id}/download/`);
+  const res = await throttled(`${API}/sounds/${id}/download/`);
   if (!res.ok || !res.body)
     throw new Error(`Freesound sound ${id}: download failed, HTTP ${res.status}`);
   const part = `${dest}.part`;
