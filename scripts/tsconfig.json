@@ -1,0 +1,17 @@
+{
+  // Type-checks the repo scripts (run with plain `node`, which strips the types). Part of `pnpm typecheck`.
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "nodenext",
+    // Explicit, so the DOM types (included by default) don't clash with Node's, e.g. ReadableStream.
+    "lib": ["ES2022"],
+    "types": ["node"],
+    "strict": true,
+    "noEmit": true,
+    "allowImportingTsExtensions": true,
+    "erasableSyntaxOnly": true,
+    "verbatimModuleSyntax": true,
+    "skipLibCheck": true
+  },
+  "include": ["**/*.ts"]
+}
