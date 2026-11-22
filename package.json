@@ -13,7 +13,8 @@
     "check": "biome check --write",
     "test": "vitest run",
     "test:watch": "vitest",
-    "prepare": "lefthook install"
+    "prepare": "lefthook install",
+    "test-samples": "node scripts/test-samples/build.ts"
   },
   "devDependencies": {
     "@biomejs/biome": "2.6.8",
